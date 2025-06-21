@@ -23,10 +23,27 @@ const BetList = () => {
       ) : (
         <Datagrid rowClick={false}>
           <FunctionField label="아이디" render={r => r?.user?.userid ?? r.userId} />
-          <TextField source="bigSmallResult" label="대소결과" />
-          <TextField source="oddEvenResult" label="홀짝결과" />
+
+          <FunctionField
+            label="대소결과"
+            render={r => r?.round?.sum > 10 ? '대' : '소'}
+          />
+          <FunctionField
+            label="홀짝결과"
+            render={r => (r?.round?.sum % 2 === 0 ? '짝' : '홀')}
+          />
+
           <NumberField source="amount" label="베팅금액" />
-          <TextField source="diceResult" label="주사위결과" />
+
+          <FunctionField
+            label="주사위결과"
+            render={r =>
+              r?.round
+                ? `${r.round.dice1}, ${r.round.dice2}, ${r.round.dice3}`
+                : '-'
+            }
+          />
+
           <NumberField source="payout" label="당첨금" />
           <TextField source="result" label="결과" />
           <DateField source="createdAt" label="베팅시간" showTime />

@@ -23,7 +23,7 @@ export class Rounds_Dice3 {
   @Column()
   sum: number;
 
-  @Column()
+  @Column({ type: 'text', nullable: true })
   memo: string;
 
   @Column()

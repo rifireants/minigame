@@ -11,9 +11,12 @@ export class BetsService {
   ) { }
 
   async findAll(): Promise<Bet[]> {
-    return this.betRepository.find({ relations: ['user'] });
+    return this.betRepository.find({
+      relations: ['user', 'round'],
+      order: { createdAt: 'DESC' }
+    });
   }
-
+  
   async findOne(id: number): Promise<Bet | null> {
     return this.betRepository.findOne({ where: { id } });
   }
