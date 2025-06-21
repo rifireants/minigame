@@ -1,0 +1,116 @@
+import {
+  Title,
+  useNotify,
+  useRefresh,
+  useDataProvider,
+  List,
+  Datagrid,
+  TextField,
+  DateField,
+  NumberField,
+  SimpleForm,
+  SaveButton,
+} from 'react-admin';
+import { Box, Stack, Button } from '@mui/material';
+import { useState } from 'react';
+import { TextInput } from 'react-admin';
+
+const RoundCreateToolbar = () => {
+  const notify = useNotify();
+  const refresh = useRefresh();
+  const dataProvider = useDataProvider();
+  const token = localStorage.getItem('token');
+
+  const [startTime, setStartTime] = useState(() => {
+    const now = new Date();
+    now.setSeconds(0, 0); // 초, 밀리초 제거 (datetime-local 형식 맞춤)
+    return now.toISOString().slice(0, 16); // 'YYYY-MM-DDTHH:mm'
+  });
+  const [interval, setInterval] = useState(3);
+  const [count, setCount] = useState(10);
+  const [memo, setMemo] = useState();
+
+  const handleGenerate = async () => {
+    try {
+      await fetch('http://localhost:3001/rounds/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ startTime, interval, count, memo }),
+      });
+      notify('회차가 생성되었습니다', { type: 'success' });
+      refresh();
+    } catch (error) {
+      console.error(error);
+      notify('회차 생성 중 오류 발생', { type: 'error' });
+    }
+  };
+
+  return (
+    <Box sx={{ mb: 2 }}>
+      <SimpleForm toolbar={false} onSubmit={handleGenerate}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+          <TextInput
+            label="시작 시간"
+            source="startTime"
+            type="datetime-local"
+            defaultValue={startTime}
+            onChange={e => setStartTime(e.target.value)}
+            fullWidth
+          />
+          <TextInput
+            label="회차 간격 (분)"
+            source="interval"
+            type="number"
+            defaultValue={interval}
+            onChange={e => setInterval(parseInt(e.target.value, 10))}
+            fullWidth
+          />
+          <TextInput
+            label="생성 개수"
+            source="count"
+            type="number"
+            defaultValue={count}
+            onChange={e => setCount(parseInt(e.target.value, 10))}
+            fullWidth
+          />
+          <TextInput
+            label="메모"
+            source="memo"
+            value={memo}
+            onChange={e => setMemo(e.target.value)}
+            fullWidth
+          />
+          <SaveButton label="회차 생성" alwaysEnable />
+        </Stack>
+      </SimpleForm>
+    </Box>
+  );
+};
+
+const RoundsPage = () => {
+  return (
+    <Box p={2}>
+      <Title title="회차관리" />
+      <RoundCreateToolbar />
+      <List resource="rounds" title="" actions={false}>
+        <Datagrid>
+          <TextField source="round" label="회차번호" />
+          <DateField source="startTime" label="시작시간" showTime />
+          <NumberField source="dice1" label="주사위1" />
+          <NumberField source="dice2" label="주사위2" />
+          <NumberField source="dice3" label="주사위3" />
+          <NumberField source="sum" label="총합" />
+          <TextField source="memo" label="메모" />
+          <NumberField source="participants" label="참여자 수" />
+          <NumberField source="totalBet" label="총베팅액" />
+          <TextField source="status" label="상태" />
+        </Datagrid>
+      </List>
+    </Box>
+  );
+};
+
+export default RoundsPage;
