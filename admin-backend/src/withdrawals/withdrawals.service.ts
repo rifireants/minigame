@@ -1,39 +1,55 @@
+// withdrawals.service.ts
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Withdrawal } from './withdrawal.entity';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class WithdrawalsService {
-  private withdrawals: Withdrawal[] = [
-    {
-      id: 1,
-      userId: 1,
-      amount: 50000,
-      bankName: 'KB국민',
-      accountNumber: '0123456789',
-      accountHolder: '예금주',
-      status: 'pending',
-      createdAt: new Date(),
-    },
-  ];
+  constructor(
+    @InjectRepository(Withdrawal)
+    private withdrawalRepository: Repository<Withdrawal>,
+    
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) { }
 
-  findAll(): Withdrawal[] {
-    return this.withdrawals;
+  async findAll(): Promise<Withdrawal[]> {
+    return this.withdrawalRepository.find({ relations: ['user'] });
   }
 
-  findOne(id: number): Withdrawal | undefined {
-    return this.withdrawals.find(w => w.id === id);
+  async findOne(id: number): Promise<Withdrawal | null> {
+    return this.withdrawalRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+  }
+  async create(withdrawal: Withdrawal): Promise<void> {
+    await this.withdrawalRepository.save(withdrawal);
   }
 
-  create(withdrawal: Withdrawal) {
-    this.withdrawals.push(withdrawal);
+  async update(id: number, update: Partial<Withdrawal>): Promise<any> {
+    const existing = await this.withdrawalRepository.findOne({ where: { id } });
+    if (!existing) throw new Error('Withdrawal not found');
+
+    const shouldDeduct = existing.status === 'pending' && update.status === 'approved';
+
+    await this.withdrawalRepository.update(id, update);
+
+    if (shouldDeduct) {
+      // 포인트 차감
+      await this.userRepository.decrement(
+        { id: existing.userId },
+        'point',
+        existing.amount,
+      );
+    }
+
+    return this.withdrawalRepository.findOne({ where: { id }, relations: ['user'] });
   }
 
-  update(id: number, update: Partial<Withdrawal>) {
-    const index = this.withdrawals.findIndex(w => w.id === id);
-    this.withdrawals[index] = { ...this.withdrawals[index], ...update };
-  }
-
-  remove(id: number) {
-    this.withdrawals = this.withdrawals.filter(w => w.id !== id);
+  async remove(id: number): Promise<void> {
+    await this.withdrawalRepository.delete(id);
   }
 }

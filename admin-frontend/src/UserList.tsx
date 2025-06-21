@@ -20,9 +20,13 @@ const UserList = () => {
       ) : (
         <Datagrid rowClick="edit">
           <TextField source="id" />
+          <TextField source="userid" />
           <TextField source="username" />
-          <TextField source="email" />
+          <TextField source="level" />
           <TextField source="point" />
+          <TextField source="bankName" />
+          <TextField source="accountNumber" />
+          <TextField source="createdAt" />
         </Datagrid>
       )}
     </List>

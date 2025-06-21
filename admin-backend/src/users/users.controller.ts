@@ -9,38 +9,36 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  // @Get()
-  // findAll(): User[] {
-  //   return this.usersService.findAll();
-  // }
   @Get()
-  findAll(@Res() res: Response): void {
-    const users = this.usersService.findAll();
+  async findAll(@Res() res: Response): Promise<void> {
+    const users = await this.usersService.findAll();
     res.setHeader('Content-Range', `users 0-${users.length - 1}/${users.length}`);
     res.setHeader('Access-Control-Expose-Headers', 'Content-Range');
-    res.json(users);
+    res.json(users.map(({ password, ...rest }) => rest));
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): User {
-    const user = this.usersService.findOne(+id);
+  async findOne(@Param('id') id: string): Promise<any> {
+    const user = await this.usersService.findOne(+id);
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-    return user;
+    const { password, ...rest } = user;
+    return rest;
   }
+
   @Post()
-  create(@Body() user: User) {
-    this.usersService.create(user);
+  async create(@Body() user: User): Promise<void> {
+    await this.usersService.create(user);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() user: Partial<User>) {
-    this.usersService.update(+id, user);
+  async update(@Param('id') id: string, @Body() user: Partial<User>): Promise<void> {
+    await this.usersService.update(+id, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    this.usersService.remove(+id);
+  async remove(@Param('id') id: string): Promise<void> {
+    await this.usersService.remove(+id);
   }
 }

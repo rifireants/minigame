@@ -1,17 +1,43 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from 'src/users/user.entity';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(
+    private readonly authService: AuthService,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
+  ) {}
 
   @Post('login')
-  login(@Body() body: { username: string; password: string }) {
-    return this.authService.login(body.username, body.password);
+  login(@Body() body: { userid: string; password: string }) {
+    return this.authService.login(body.userid, body.password);
   }
 
   @Post('register')
-  register(@Body() body: { username: string; password: string }) {
-    return this.authService.register(body.username, body.password);
+  async register(@Body() body: {
+    userid: string;
+    username: string;
+    password: string;
+  }) {
+    const existing = await this.userRepo.findOne({ where: { userid: body.userid } });
+    if (existing) {
+      throw new BadRequestException('이미 존재하는 아이디입니다.');
+    }
+
+    const user = this.userRepo.create({
+      ...body,
+      level: 1,
+      point: 0,
+      bankName: '',
+      accountNumber: '',
+      createdAt: new Date(),
+    });
+
+    await this.userRepo.save(user);
+    return { message: '회원가입 성공' };
   }
 }

@@ -1,42 +1,22 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Setting } from './settings.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SettingsService {
-  private setting: Setting = {
-    id: 'singleton',
-    allowTransaction: true,
-    autoAmount: 100000,
-    startTime: '09:00',
-    endTime: '18:00',
-    depositMin: 10000,
-    depositMax: 1000000,
-    depositFee: 0,
-    withdrawMin: 10000,
-    withdrawMax: 1000000,
-    withdrawFee1: 0,
-    withdrawFee2: 0,
-    bettingTime: 160,
-    resultTime: 10,
-    disableTime: 10,
-    bettingMin: 1000,
-    bettingMax: 1000000,
-    oddsBS: 2,
-    oddsOE: 2,
-    bankName: 'KB국민',
-    accountNumber: '담당자에게 문의하세요.',
-    accountHodler: '(주)벨루나',
-    inviteCode: '7979',
-    signupBonus: 0,
-    allowSignup: false,
-  };
+  constructor(
+    @InjectRepository(Setting)
+    private readonly settingRepo: Repository<Setting>,
+  ) {}
 
-  findOne(): Setting | undefined {
-    return this.setting;
+  async findOne(): Promise<Setting | null> {
+    return this.settingRepo.findOne({ where: { id: 'singleton' } });
   }
 
-  update(data: Partial<typeof this.setting>) {
-    this.setting = { ...this.setting, ...data };
-    return this.setting;
+  async update(data: Partial<Setting>): Promise<Setting> {
+    const existing = await this.findOne();
+    const merged = this.settingRepo.merge(existing || { id: 'singleton' } as Setting, data);
+    return this.settingRepo.save(merged);
   }
 }

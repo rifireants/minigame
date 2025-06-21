@@ -1,3 +1,4 @@
+// withdrawals.controller.ts
 import {
   Controller,
   Get,
@@ -18,37 +19,43 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @Controller('withdrawals')
 export class WithdrawalsController {
-  constructor(private readonly withdrawalsService: WithdrawalsService) {}
+  constructor(private readonly withdrawalsService: WithdrawalsService) { }
 
   @Get()
-  findAll(@Res() res: Response): void {
-    const data = this.withdrawalsService.findAll();
+  async findAll(@Res() res: Response): Promise<void> {
+    const data = await this.withdrawalsService.findAll();
     res.setHeader('Content-Range', `withdrawals 0-${data.length - 1}/${data.length}`);
     res.setHeader('Access-Control-Expose-Headers', 'Content-Range');
     res.json(data);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Withdrawal {
-    const withdrawal = this.withdrawalsService.findOne(+id);
-    if (!withdrawal) {
+  async findOne(@Param('id') id: string, @Res() res: Response): Promise<void> {
+    const data = await this.withdrawalsService.findOne(+id);
+    if (!data) {
       throw new NotFoundException(`Withdrawal with id ${id} not found`);
     }
-    return withdrawal;
+    res.json(data);
   }
 
   @Post()
-  create(@Body() withdrawal: Withdrawal) {
-    this.withdrawalsService.create(withdrawal);
+  async create(@Body() withdrawal: Withdrawal): Promise<void> {
+    await this.withdrawalsService.create(withdrawal);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() update: Partial<Withdrawal>) {
-    this.withdrawalsService.update(+id, update);
+  async update(
+    @Param('id') id: string,
+    @Body() update: Partial<Withdrawal>,
+    @Res() res: Response,
+  ): Promise<void> {
+    const result = await this.withdrawalsService.update(+id, update);
+    res.setHeader('Content-Type', 'application/json');
+    res.status(200).json(result);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    this.withdrawalsService.remove(+id);
+  async remove(@Param('id') id: string): Promise<void> {
+    await this.withdrawalsService.remove(+id);
   }
 }

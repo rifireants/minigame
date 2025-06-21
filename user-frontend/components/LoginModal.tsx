@@ -20,8 +20,8 @@ export default function LoginModal() {
       <p className="text-center text-sm text-gray-500 mb-6">회원님, 로그인 후 서비스를 이용하세요.</p>
       <form className="space-y-4">
         <input
-          type="email"
-          placeholder="이메일"
+          type="userid"
+          placeholder="아이디"
           className="w-full p-2 border border-gray-300 rounded-md"
         />
         <input

@@ -1,27 +1,79 @@
+import { Entity, PrimaryColumn, Column } from 'typeorm';
+
+@Entity()
 export class Setting {
-  id: string;
+  @PrimaryColumn()
+  id: string; // 싱글톤 설정 ID
+
+  @Column()
   allowTransaction: boolean;
+
+  @Column()
   autoAmount: number;
+
+  @Column()
   startTime: string;
+
+  @Column()
   endTime: string;
+
+  @Column()
   depositMin: number;
+
+  @Column()
   depositMax: number;
+
+  @Column()
   depositFee: number;
+
+  @Column()
   withdrawMin: number;
+
+  @Column()
   withdrawMax: number;
+
+  @Column()
   withdrawFee1: number;
+
+  @Column()
   withdrawFee2: number;
+
+  @Column()
   bettingTime: number;
+
+  @Column()
   resultTime: number;
+
+  @Column()
   disableTime: number;
+
+  @Column()
   bettingMin: number;
+
+  @Column()
   bettingMax: number;
+
+  @Column()
   oddsBS: number;
+
+  @Column()
   oddsOE: number;
+
+  @Column()
   bankName: string;
+
+  @Column()
   accountNumber: string;
+
+  @Column()
   accountHodler: string;
+
+  @Column()
   inviteCode: string;
+
+  @Column()
   signupBonus: number;
+
+  @Column()
   allowSignup: boolean;
 }

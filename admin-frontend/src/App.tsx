@@ -1,5 +1,6 @@
 import { Admin, Resource, EditGuesser } from 'react-admin';
 import UserList from './UserList';
+import UserEdit from './UserEdit';
 import DepositList from './DepositList';
 import WithdrawalList from './WithdrawalList';
 import dataProvider from './dataProvider';
@@ -17,7 +18,7 @@ import RoundsPage from './RoundsPage';
 function App() {
   return (
     <Admin dataProvider={dataProvider} authProvider={authProvider} i18nProvider={i18nProvider} layout={MyLayout}>
-      <Resource name="users" list={UserList} edit={EditGuesser} />
+      <Resource name="users" list={UserList} edit={UserEdit} />
       <Resource name="deposits" list={DepositList} edit={EditGuesser} />
       <Resource name="withdrawals" list={WithdrawalList} edit={EditGuesser} />
       <Resource name="bets" list={BetList} edit={EditGuesser} />

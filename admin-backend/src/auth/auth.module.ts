@@ -4,10 +4,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from 'src/auth/jwt.strategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from 'src/users/user.entity';
 
 @Module({
   imports: [
     ConfigModule,
+    TypeOrmModule.forFeature([User]),
     JwtModule.registerAsync({
       useFactory: async (config: ConfigService) => ({
         secret: config.get('JWT_SECRET'),

@@ -1,39 +1,32 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Bet } from './bet.entity';
 
 @Injectable()
 export class BetsService {
-  private bets: Bet[] = [
-    {
-      id: 1,
-      userId: 1,
-      amount: 1000,
-      payout: 2000,
-      betType: 'odd',
-      result: 'win',
-      status: 'active',
-      createdAt: new Date(),
-    },
-  ];
+  constructor(
+    @InjectRepository(Bet)
+    private betRepository: Repository<Bet>,
+  ) { }
 
-  findAll(): Bet[] {
-    return this.bets;
+  async findAll(): Promise<Bet[]> {
+    return this.betRepository.find({ relations: ['user'] });
   }
 
-  findOne(id: number): Bet | undefined {
-    return this.bets.find(b => b.id === id);
+  async findOne(id: number): Promise<Bet | null> {
+    return this.betRepository.findOne({ where: { id } });
   }
 
-  create(bet: Bet) {
-    this.bets.push(bet);
+  async create(bet: Bet): Promise<void> {
+    await this.betRepository.save(bet);
   }
 
-  update(id: number, update: Partial<Bet>) {
-    const index = this.bets.findIndex(b => b.id === id);
-    this.bets[index] = { ...this.bets[index], ...update };
+  async update(id: number, update: Partial<Bet>): Promise<void> {
+    await this.betRepository.update(id, update);
   }
 
-  remove(id: number) {
-    this.bets = this.bets.filter(b => b.id !== id);
+  async remove(id: number): Promise<void> {
+    await this.betRepository.delete(id);
   }
 }

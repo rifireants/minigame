@@ -1,31 +1,32 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { User } from './user.entity';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    { id: 1, userid: 'testuser1', username: '테스트유저1', email: 'test1@example.com', level: 1, point: 1000, bankName: 'KB국민', accountNumber: '0123456789', createdAt: new Date() },
-    { id: 2, userid: 'testuser2', username: '테스트유저2', email: 'test2@example.com', level: 1, point: 2000, bankName: '신한', accountNumber: '1234567890', createdAt: new Date() },
-  ];
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) { }
 
-  findAll(): User[] {
-    return this.users;
+  async findAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
 
-  findOne(id: number): User | undefined {
-    return this.users.find(user => user.id === id);
+  async findOne(id: number): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { id } });
   }
 
-  create(user: User) {
-    this.users.push(user);
+  async create(user: User): Promise<void> {
+    await this.usersRepository.save(user);
   }
 
-  update(id: number, user: Partial<User>) {
-    const index = this.users.findIndex(u => u.id === id);
-    this.users[index] = { ...this.users[index], ...user };
+  async update(id: number, partialUser: Partial<User>): Promise<void> {
+    await this.usersRepository.update(id, partialUser);
   }
 
-  remove(id: number) {
-    this.users = this.users.filter(user => user.id !== id);
+  async remove(id: number): Promise<void> {
+    await this.usersRepository.delete(id);
   }
 }

@@ -1,37 +1,51 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Deposit } from './deposit.entity';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class DepositsService {
-  private deposits: Deposit[] = [
-    {
-      id: 1,
-      userId: 1,
-      amount: 100000,
-      accountHolder: "예금주",
-      status: 'pending',
-      createdAt: new Date(),
-    },
-  ];
+  constructor(
+    @InjectRepository(Deposit)
+    private depositRepository: Repository<Deposit>,
 
-  findAll(): Deposit[] {
-    return this.deposits;
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) { }
+
+  async findAll(): Promise<Deposit[]> {
+    return this.depositRepository.find({ relations: ['user'] });
   }
 
-  findOne(id: number): Deposit | undefined {
-    return this.deposits.find(d => d.id === id);
+  async findOne(id: number): Promise<Deposit | null> {
+    return this.depositRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
   }
 
-  create(deposit: Deposit) {
-    this.deposits.push(deposit);
+  async create(deposit: Deposit): Promise<void> {
+    await this.depositRepository.save(deposit);
   }
 
-  update(id: number, update: Partial<Deposit>) {
-    const index = this.deposits.findIndex(d => d.id === id);
-    this.deposits[index] = { ...this.deposits[index], ...update };
+  async update(id: number, update: Partial<Deposit>): Promise<any> {
+    const existing = await this.depositRepository.findOne({ where: { id } });
+    if (!existing) throw new Error('Deposit not found');
+
+    // 상태가 pending이고, 변경하려는 값이 approved일 때
+    const shouldReward = existing.status === 'pending' && update.status === 'approved';
+    await this.depositRepository.update(id, update);
+
+    if (shouldReward) {
+      // 유저 포인트 적립
+      await this.userRepository.increment({ id: existing.userId }, 'point', existing.amount);
+    }
+
+    return this.depositRepository.findOne({ where: { id }, relations: ['user'] });
   }
 
-  remove(id: number) {
-    this.deposits = this.deposits.filter(d => d.id !== id);
+  async remove(id: number): Promise<void> {
+    await this.depositRepository.delete(id);
   }
 }

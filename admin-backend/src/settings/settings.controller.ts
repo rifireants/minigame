@@ -1,21 +1,20 @@
 import { Controller, Get, Put, Body, Param, UseGuards } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Setting } from './settings.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('settings')
 export class SettingsController {
-  constructor(private readonly service: SettingsService) {}
+  constructor(private readonly service: SettingsService) { }
 
-  // ✅ ReactAdmin의 useGetOne 대응
   @Get(':id')
-  getSettings() {
-    return this.service.findOne(); // id는 무시하고 싱글톤 반환
+  async getSettings() {
+    return await this.service.findOne(); // id는 무시하고 싱글톤 반환
   }
 
-  // ✅ useUpdate 대응
   @Put(':id')
-  updateSettings(@Param('id') id: string, @Body() data: { bankName: string, accountNumber: string, accountHodler: string, inviteCode: string, signupBonus: number, allowSignup: boolean }) {
-    return this.service.update(data);
+  async updateSettings(@Param('id') id: string, @Body() data: Partial<Setting>) {
+    return await this.service.update(data);
   }
 }

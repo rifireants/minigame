@@ -1,22 +1,31 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from 'src/users/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) { }
+  constructor(
+    private jwtService: JwtService,
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
+  ) { }
 
-  validateUser(username: string, password: string): boolean {
-    // 하드코딩된 관리자 계정
-    return username === 'admin' && password === '1234';
+  async validateUser(userid: string, password: string): Promise<User | null> {
+    const user = await this.userRepo.findOne({ where: { userid } });
+    if (!user) return null;
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    return isMatch ? user : null;
   }
 
-  login(username: string, password: string): { access_token: string } {
-    if (!this.validateUser(username, password)) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+  async login(userid: string, password: string): Promise<{ access_token: string }> {
+    const user = await this.validateUser(userid, password);
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    const payload = { username };
-    const access_token = this.jwtService.sign(payload);
-    return { access_token };
+    const payload = { sub: user.id, username: user.username };
+    return { access_token: this.jwtService.sign(payload) };
   }
 }
