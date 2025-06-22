@@ -27,7 +27,7 @@ export class User {
   @Column()
   accountNumber: string;
 
-  @Column({ type: 'timestamptz' })
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
   @BeforeInsert()

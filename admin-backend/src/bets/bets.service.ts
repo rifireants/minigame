@@ -86,7 +86,7 @@ export class BetsService {
     });
 
     await this.betRepository.save(newBet);
-    return { success: true, message: "베팅이 완료되었습니다!" };
+    return { success: true, message: "베팅되었습니다!" };
   }
 
   async resolveBets(roundId: number, sum: number): Promise<void> {
@@ -98,6 +98,7 @@ export class BetsService {
     for (const bet of bets) {
       const betTypes = bet.betType.split(',');
       const isWin = betTypes.includes(resultType) || betTypes.includes(oddEven);
+      const isWinPerfect = betTypes.includes(resultType) && betTypes.includes(oddEven);
 
       bet.result = isWin ? 'win' : 'lose';
       bet.status = 'resolved';
@@ -106,7 +107,15 @@ export class BetsService {
         const user = await this.userRepository.findOneBy({ id: bet.userId });
 
         if (user) {
-          user.point += bet.amount * 2; // 예: 2배 지급
+          if (betTypes.length == 1) {
+            user.point += bet.amount * 2;
+          } else if (betTypes.length == 2) {
+            if (isWinPerfect)
+              user.point += bet.amount * 2.5;
+            else
+              user.point += bet.amount * 1.5;
+          }
+
           await this.userRepository.save(user);
         }
       }

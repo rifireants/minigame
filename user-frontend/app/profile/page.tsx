@@ -10,31 +10,30 @@ import RecentBets from "../../components/RecentBets";
 import RecentPointLog from "../../components/RecentPoints";
 import QuickNav from "../../components/QuickNav";
 
-interface User {
-  userid: string;
-  username: string;
-  level: string;
-  point: string;
-}
-
 export default function ProfilePage() {
-  const [user, setUser] = useState<User | null>(null);
+  const [userData, setUserData] = useState<any>(null);
+
+  const fetchUser = async () => {
+    const token = localStorage.getItem('token');
+    const res = await fetch('http://localhost:3001/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setUserData(data);
+    }
+  };
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+    const fetchData = async () => {
+      try {
+        fetchUser();
+      } catch (error) {
+        console.error('데이터 불러오기 실패:', error);
+      }
+    };
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Unauthorized');
-        return res.json();
-      })
-      .then((data) => setUser(data))
-      .catch(() => setUser(null));
+    fetchData();
   }, []);
 
 
@@ -47,8 +46,8 @@ export default function ProfilePage() {
   return (
     <main className="bg-white min-h-screen pb-20 max-w-md mx-auto">
       <ProfileHeader />
-      <ProfileCard name={user?.username} id={user?.userid} level={user?.level>1 ? "시스템 관리자" : "유저"} points={user?.point} />
-      <AdminMenu />
+      <ProfileCard userData={userData} />
+      {userData.level > 90 && <AdminMenu />}
       <ProfileMenu />
       <RecentBets />
       <RecentPointLog />

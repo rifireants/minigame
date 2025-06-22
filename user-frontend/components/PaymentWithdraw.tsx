@@ -1,7 +1,8 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { BsCurrencyDollar, BsBank, BsCreditCard, BsPerson, BsClipboard, BsInfoCircle } from "react-icons/bs";
+import { toast } from 'sonner';
 
 type HistoryItem = {
   type: string;
@@ -23,23 +24,72 @@ const statusColor = {
   거부: 'bg-red-500 text-white',
 };
 
-export default function PaymentWithdraw() {
+export default function PaymentWithdraw({ userData }: { userData: any }) {
   const [amount, setAmount] = useState<number | string>('');
-  const [bank, setBank] = useState('');
+  const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
-  const [accountHolder, setAccountHolder] = useState('최고관리자');
-  const maxAmount = 172100;
+  const [accountHolder, setAccountHolder] = useState('');
+  const [history, setHistory] = useState([]);
 
-  const handleSelectAmount = (value: number) => {
-    setAmount(value);
+  useEffect(() => {
+    const fetchWithdrawalHistory = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/withdrawals`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setHistory(await res.json());
+      } catch (err) {
+        console.error("출금 이력 조회 실패", err);
+      }
+    };
+
+    fetchWithdrawalHistory();
+  }, []);
+
+  const handleAmountSelect = (selectedAmount: number) => {
+    setAmount(selectedAmount);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(`출금 신청 완료: ${amount}원`);
-    // TODO: 제출 처리 로직 추가
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    try {
+      const token = localStorage.getItem("token"); // 로그인 후 저장된 JWT 토큰
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/withdrawals`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount,
+          bankName,
+          accountNumber,
+          accountHolder
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success)
+        toast.success(result.message);
+      else
+        toast.error(result.message);
+    } catch (err) {
+      toast.error("충전 신청에 실패했습니다.");
+    }
   };
 
+  const isDisabled = !amount || !accountHolder || !bankName || !accountNumber;
+  const maxAmount = userData.point || 0;
+
+  const fixedValues = [10000, 50000, 100000];
+  const fullAmount = Math.min(maxAmount, 1000000);
+  const amounts = fixedValues.includes(fullAmount)
+    ? fixedValues
+    : [...fixedValues, fullAmount];
 
   return (
     <>
@@ -49,12 +99,12 @@ export default function PaymentWithdraw() {
         <form onSubmit={handleSubmit}>
           {/* 금액 버튼 */}
           <div className="grid grid-cols-2 gap-3 mb-4">
-            {[10000, 50000, 100000, Math.min(maxAmount, 1000000)].map((val, idx) => (
+            {amounts.map((val, idx) => (
               <Button
                 key={idx}
                 type="button"
-                onClick={() => handleSelectAmount(val)}
-                className="w-full py-3 bg-gray-100 hover:bg-blue-500 hover:text-white rounded-lg font-bold"
+                onClick={() => handleAmountSelect(val)}
+                className="w-full py-3 bg-gray-100 text-blue-500 hover:bg-blue-500 hover:text-white rounded-lg font-bold"
               >
                 {val === Math.min(maxAmount, 1000000) ? '전액출금' : `${val.toLocaleString()}원`}
               </Button>
@@ -78,7 +128,7 @@ export default function PaymentWithdraw() {
                 max={maxAmount}
               />
             </div>
-            <small className="text-gray-500">최소: 10,000원, 최대: {maxAmount.toLocaleString()}원</small>
+            <small className="text-gray-500">최소: 10,000원, 최대: 172,100원</small>
           </div>
 
           {/* 은행 선택 */}
@@ -90,8 +140,8 @@ export default function PaymentWithdraw() {
               </span>
               <select
                 className="w-full p-2 outline-none"
-                value={bank}
-                onChange={(e) => setBank(e.target.value)}
+                value={bankName}
+                onChange={(e) => setBankName(e.target.value)}
                 required
               >
                 <option value="">은행 선택</option>
@@ -155,6 +205,7 @@ export default function PaymentWithdraw() {
           {/* submit 버튼 */}
           <Button
             type="submit"
+            disabled={isDisabled}
             className="w-full py-3 bg-yellow-400 text-white font-semibold rounded-lg flex items-center justify-center"
           >
             <BsBank className="mr-2" />
@@ -165,27 +216,45 @@ export default function PaymentWithdraw() {
       <div className="bg-white shadow-lg rounded-lg p-4 m-4">
         <h6 className="text-sm text-gray-500 mb-4">최근 신청 내역</h6>
 
-        <div className="space-y-4">
-          {historyData.map((item, index) => (
-            <div key={index} className="border-b pb-3">
-              <div className="flex justify-between items-center mb-1">
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold">{item.type}</span>
-                  <span className="text-xs text-gray-500">{item.date}</span>
+        {history.length > 0 && (
+          <div className="space-y-4">
+            {history.map((item: any, idx: number) => (
+              <div key={idx} className="flex flex-col space-y-2 border-b border-gray-200 pb-3">
+                <div className="flex justify-between items-center">
+                  <div className="flex space-x-2">
+                    <span className="font-semibold text-blue-500">충전</span>
+                    <span className="text-sm text-gray-500">
+                      {new Date(item.createdAt).toLocaleString("ko-KR", {
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${item.status === "approved"
+                      ? "text-green-600 bg-green-100"
+                      : item.status === "rejected"
+                        ? "text-red-500 bg-red-100"
+                        : "text-gray-500 bg-gray-100"
+                      }`}
+                  >
+                    {item.status === "approved" ? "승인" : item.status === "rejected" ? "거절" : "대기"}
+                  </span>
                 </div>
-                <span
-                  className={`text-xs px-2 py-1 rounded-full text-center ${statusColor[item.status]}`}
-                >
-                  {item.status}
-                </span>
+                <div className="mt-2 text-sm text-gray-700">
+                  <span className="font-medium">금액: </span>
+                  <strong>{item.amount.toLocaleString()}원</strong>
+                </div>
               </div>
-              <div className="text-sm text-gray-700">금액: <strong>{item.amount}</strong></div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+
         {/* 전체 내역 보기 버튼 */}
         <div className="text-center mt-4">
-          <a href="payment_history.php" className="text-blue-500 hover:text-blue-700 font-medium text-sm">
+          <a href="/historyt" className="text-blue-500 hover:text-blue-700 font-medium text-sm">
             전체 내역 보기
           </a>
         </div>

@@ -31,6 +31,10 @@ export default function GamePage() {
     if (res.ok) {
       const data = await res.json();
       setRoundData(data);
+
+      if (data.status === 'ended') {
+        fetchUser();
+      }
     }
   };
 
@@ -67,7 +71,7 @@ export default function GamePage() {
     <main className="bg-white min-h-screen pb-20 max-w-md mx-auto">
       <GameStatus roundData={roundData} fetchRound={fetchRound} isBettingClosed={isBettingClosed} />
       <GameResult />
-      <GameBetting userData={userData} roundData={roundData} onRefreshUser={fetchUser} isBettingClosed={isBettingClosed}/>
+      <GameBetting userData={userData} roundData={roundData} onRefreshUser={fetchUser} isBettingClosed={isBettingClosed} />
       <GameNav />
       <QuickNav />
     </main>

@@ -7,6 +7,7 @@ import {
   Delete,
   Param,
   Body,
+  Req,
   Res,
   NotFoundException,
   UseGuards,
@@ -38,9 +39,25 @@ export class WithdrawalsController {
     res.json(data);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() withdrawal: Withdrawal): Promise<void> {
+  async create(
+    @Body() body: Partial<Withdrawal>,
+    @Req() req: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    const user = req.user as any;
+    console.log("--------", user);
+    const withdrawal = new Withdrawal();
+    withdrawal.userId = user.userid;
+    withdrawal.amount = body.amount || 0;
+    withdrawal.bankName = body.bankName || "";
+    withdrawal.accountNumber = body.accountNumber || "";
+    withdrawal.accountHolder = body.accountHolder || user.username;
+    withdrawal.status = 'pending'; // 기본 상태
+
     await this.withdrawalsService.create(withdrawal);
+    res.status(201).json({ success: true, message: '출금 신청 완료' });
   }
 
   @Put(':id')

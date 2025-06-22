@@ -23,7 +23,6 @@ export class AuthController {
     userid: string;
     password: string;
   }) {
-    console.log(body);
     const existing = await this.userRepo.findOne({ where: { userid: body.userid } });
     if (existing) {
       throw new BadRequestException('이미 존재하는 아이디입니다.');
@@ -53,10 +52,9 @@ export class AuthController {
   @Get('me')
   async getMe(@Req() req) {
     const userId = req.user.userid; // JWT payload에 담긴 userId
-    console.log(req.user, userId);
     const user = await this.userRepo.findOne({
       where: { id: userId },
-      select: ['id', 'username', 'level', 'point'], // 필요한 필드만
+      select: ['id', 'userid', 'username', 'level', 'point'], // 필요한 필드만
     });
 
     return user;

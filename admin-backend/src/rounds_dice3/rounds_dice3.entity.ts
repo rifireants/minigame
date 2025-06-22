@@ -38,6 +38,6 @@ export class Rounds_Dice3 {
   @Column({ type: 'varchar' })
   status: 'created' | 'started' | 'ended' | 'canceled';
 
-  @Column({ type: 'timestamptz' })
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 }

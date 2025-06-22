@@ -151,6 +151,7 @@ export default function GameBetting({ userData, roundData, onRefreshUser, isBett
               </div>
               <input
                 type="number"
+                value={amount}
                 onChange={handleChange}
                 className="form-control pl-10 py-3 border-2 border-gray-300 rounded-lg w-full"
                 id="betAmount"

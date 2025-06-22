@@ -1,21 +1,64 @@
 'use client';
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { BsPlusCircle, BsDashCircle, BsPerson, BsBank, BsClipboard, BsInfoCircle } from "react-icons/bs";
+import { useState, useEffect } from "react";
+import { BsPlusCircle, BsPerson, BsBank, BsClipboard, BsInfoCircle } from "react-icons/bs";
+import { toast } from 'sonner';
 
 export default function PaymentDeposit() {
   const [amount, setAmount] = useState<number | string>(''); // 금액 상태
-  const [depositName, setDepositName] = useState('최고관리자'); // 입금자명 상태
+  const [accountHolder, setAccountHolder] = useState(''); // 입금자명 상태
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    const fetchDepositHistory = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/deposits`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setHistory(await res.json());
+      } catch (err) {
+        console.error("충전 이력 조회 실패", err);
+      }
+    };
+
+    fetchDepositHistory();
+  }, []);
 
   const handleAmountSelect = (selectedAmount: number) => {
     setAmount(selectedAmount);
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log('충전 신청', amount, depositName);
-    // 충전 신청 처리 로직을 여기에 추가합니다.
+
+    try {
+      const token = localStorage.getItem("token"); // 로그인 후 저장된 JWT 토큰
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/deposits`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount,
+          accountHolder
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success)
+        toast.success(result.message);
+      else
+        toast.error(result.message);
+    } catch (err) {
+      toast.error("충전 신청에 실패했습니다.");
+    }
   };
+
+  const isDisabled = !amount || !accountHolder;
 
   return (
     <>
@@ -29,7 +72,7 @@ export default function PaymentDeposit() {
                 <Button
                   type="button"
                   onClick={() => handleAmountSelect(amountOption)}
-                  className="w-full py-3 bg-gray-100 text-black hover:bg-blue-500 hover:text-white rounded-lg font-bold"
+                  className="w-full py-3 bg-gray-100 text-blue-500 hover:bg-blue-500 hover:text-white rounded-lg font-bold"
                 >
                   {amountOption.toLocaleString()}원
                 </Button>
@@ -58,23 +101,25 @@ export default function PaymentDeposit() {
 
           {/* 입금자명 */}
           <div className="mb-3">
-            <label htmlFor="depositName" className="block text-sm font-medium text-gray-700">입금자명</label>
+            <label htmlFor="accountHolder" className="block text-sm font-medium text-gray-700">입금자명</label>
             <div className="flex items-center border border-gray-300 rounded-lg">
               <span className="px-3 py-2 bg-white text-blue-500 border-r">
                 <BsPerson className="mr-2" />
               </span>
               <input
                 type="text"
+                value={accountHolder}
                 className="flex-1 px-3 py-2 border-none outline-none"
-                id="depositName"
-                defaultValue="최고관리자"
+                id="accountHolder"
                 placeholder="입금하실 분의 성함"
+                onChange={(e) => setAccountHolder(e.target.value)}
               />
             </div>
           </div>
 
           <Button
             type="submit"
+            disabled={isDisabled}
             className="w-full py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
           >
             <BsPlusCircle className="mr-2" />
@@ -110,80 +155,45 @@ export default function PaymentDeposit() {
           위 계좌로 입금 후 충전 신청해주세요. 관리자 확인 후 포인트가 지급됩니다.
         </div>
       </div >
+
       <div className="bg-white border border-gray-200 rounded-2xl shadow-2xl p-4 m-4">
         <h6 className="text-sm text-gray-500 mb-3">최근 신청 내역</h6>
 
-        <div className="space-y-4">
-          {/* History Item 1 */}
-          <div className="flex flex-col space-y-2 border-b border-gray-200 pb-3">
-            <div className="flex justify-between items-center">
-              <div className="flex space-x-2">
-                <span className="font-semibold text-blue-500">충전</span>
-                <span className="text-sm text-gray-500">06/17 21:51</span>
+        {history.length > 0 && (
+          <div className="space-y-4">
+            {history.map((item: any, idx: number) => (
+              <div key={idx} className="flex flex-col space-y-2 border-b border-gray-200 pb-3">
+                <div className="flex justify-between items-center">
+                  <div className="flex space-x-2">
+                    <span className="font-semibold text-blue-500">충전</span>
+                    <span className="text-sm text-gray-500">
+                      {new Date(item.createdAt).toLocaleString("ko-KR", {
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${item.status === "approved"
+                      ? "text-green-600 bg-green-100"
+                      : item.status === "rejected"
+                        ? "text-red-500 bg-red-100"
+                        : "text-gray-500 bg-gray-100"
+                      }`}
+                  >
+                    {item.status === "approved" ? "승인" : item.status === "rejected" ? "거절" : "대기"}
+                  </span>
+                </div>
+                <div className="mt-2 text-sm text-gray-700">
+                  <span className="font-medium">금액: </span>
+                  <strong>{item.amount.toLocaleString()}원</strong>
+                </div>
               </div>
-              <span className="text-xs text-red-500 bg-red-100 px-2 py-1 rounded-full">거부</span>
-            </div>
-            <div className="mt-2 text-sm text-gray-700">
-              <span className="font-medium">금액: </span><strong>50,000원</strong>
-            </div>
+            ))}
           </div>
-
-          {/* History Item 2 */}
-          <div className="flex flex-col space-y-2 border-b border-gray-200 pb-3">
-            <div className="flex justify-between items-center">
-              <div className="flex space-x-2">
-                <span className="font-semibold text-blue-500">출금</span>
-                <span className="text-sm text-gray-500">06/13 23:29</span>
-              </div>
-              <span className="text-xs text-red-500 bg-red-100 px-2 py-1 rounded-full">거부</span>
-            </div>
-            <div className="mt-2 text-sm text-gray-700">
-              <span className="font-medium">금액: </span><strong>1,000,000원</strong>
-            </div>
-          </div>
-
-          {/* History Item 3 */}
-          <div className="flex flex-col space-y-2 border-b border-gray-200 pb-3">
-            <div className="flex justify-between items-center">
-              <div className="flex space-x-2">
-                <span className="font-semibold text-blue-500">출금</span>
-                <span className="text-sm text-gray-500">06/13 23:23</span>
-              </div>
-              <span className="text-xs text-green-500 bg-green-100 px-2 py-1 rounded-full">승인</span>
-            </div>
-            <div className="mt-2 text-sm text-gray-700">
-              <span className="font-medium">금액: </span><strong>1,000,000원</strong>
-            </div>
-          </div>
-
-          {/* History Item 4 */}
-          <div className="flex flex-col space-y-2 border-b border-gray-200 pb-3">
-            <div className="flex justify-between items-center">
-              <div className="flex space-x-2">
-                <span className="font-semibold text-blue-500">출금</span>
-                <span className="text-sm text-gray-500">06/13 23:19</span>
-              </div>
-              <span className="text-xs text-red-500 bg-red-100 px-2 py-1 rounded-full">거부</span>
-            </div>
-            <div className="mt-2 text-sm text-gray-700">
-              <span className="font-medium">금액: </span><strong>1,000,000원</strong>
-            </div>
-          </div>
-
-          {/* History Item 5 */}
-          <div className="flex flex-col space-y-2 border-b border-gray-200 pb-3">
-            <div className="flex justify-between items-center">
-              <div className="flex space-x-2">
-                <span className="font-semibold text-blue-500">충전</span>
-                <span className="text-sm text-gray-500">06/13 23:03</span>
-              </div>
-              <span className="text-xs text-green-500 bg-green-100 px-2 py-1 rounded-full">승인</span>
-            </div>
-            <div className="mt-2 text-sm text-gray-700">
-              <span className="font-medium">금액: </span><strong>1,000,000원</strong>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* 전체 내역 보기 버튼 */}
         <div className="text-center mt-4">

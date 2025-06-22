@@ -5,7 +5,7 @@ import { BsPlusCircle, BsDashCircle } from "react-icons/bs";
 import PaymentDeposit from "./PaymentDeposit";
 import PaymentWithdraw from "./PaymentWithdraw";
 
-export default function PaymentTab() {
+export default function PaymentTab({ userData }: { userData: any }) {
   const [activeTab, setActiveTab] = useState<'charge' | 'withdraw'>('charge');
 
   const handleClick = (tab: 'charge' | 'withdraw') => {
@@ -45,7 +45,7 @@ export default function PaymentTab() {
       </div>
 
       {activeTab === 'charge' && <PaymentDeposit />}
-      {activeTab === 'withdraw' && <PaymentWithdraw />}
+      {activeTab === 'withdraw' && <PaymentWithdraw userData={userData} />}
     </>
   );
 }

@@ -6,12 +6,14 @@ import {
   Delete,
   Param,
   Body,
+  Req,
   Res,
   NotFoundException,
   UseGuards,
 } from '@nestjs/common';
 import { DepositsService } from './deposits.service';
 import { Deposit } from './deposit.entity';
+import { User } from '../users/user.entity';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
@@ -37,9 +39,22 @@ export class DepositsController {
     res.json(deposit);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() deposit: Deposit): Promise<void> {
+  async create(
+    @Body() body: Partial<Deposit>,
+    @Req() req: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    const user = req.user as any;
+    const deposit = new Deposit();
+    deposit.userId = user.userid;
+    deposit.amount = body.amount || 0;
+    deposit.accountHolder = body.accountHolder || user.username;
+    deposit.status = 'pending'; // 기본 상태
+
     await this.depositsService.create(deposit);
+    res.status(201).json({ success: true, message: '충전 신청 완료' });
   }
 
   @Put(':id')

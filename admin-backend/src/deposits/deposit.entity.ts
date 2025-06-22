@@ -22,6 +22,6 @@ export class Deposit {
   @Column({ type: 'varchar' })
   status: 'pending' | 'approved' | 'rejected';
 
-  @Column({ type: 'timestamptz' })
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 }
