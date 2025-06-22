@@ -23,8 +23,12 @@ const RoundCreateToolbar = () => {
 
   const [startTime, setStartTime] = useState(() => {
     const now = new Date();
-    now.setSeconds(0, 0); // 초, 밀리초 제거 (datetime-local 형식 맞춤)
-    return now.toISOString().slice(0, 16); // 'YYYY-MM-DDTHH:mm'
+    now.setSeconds(0, 0);
+
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    const local = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    return local;
   });
   const [interval, setInterval] = useState(3);
   const [count, setCount] = useState(10);
@@ -32,13 +36,21 @@ const RoundCreateToolbar = () => {
 
   const handleGenerate = async () => {
     try {
+      const localDate = new Date(startTime); // 로컬 시간 → Date 객체
+      const utcISOString = localDate.toISOString(); // ✅ UTC 기준 ISO 문자열로 변환
+
       await fetch('http://localhost:3001/rounds/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ startTime, interval, count, memo }),
+        body: JSON.stringify({
+          startTime: utcISOString, // ✅ 서버는 UTC로 해석
+          interval,
+          count,
+          memo,
+        }),
       });
       notify('회차가 생성되었습니다', { type: 'success' });
       refresh();

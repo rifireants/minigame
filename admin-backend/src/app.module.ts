@@ -16,6 +16,7 @@ import { SettingsModule } from './settings/settings.module';
 import { Rounds_Dice3 } from './rounds_dice3/rounds_dice3.entity';
 import { RoundsDice3Module } from './rounds_dice3/rounds_dice3.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -34,9 +35,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         database: configService.get<string>('DB_NAME'),
         entities: [User, Deposit, Withdrawal, Bet, Rounds_Dice3, Setting],
         synchronize: true, // 개발 중엔 true (자동 테이블 생성)
+        logging: true,
+        logger: 'advanced-console',
       }),
     }),
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     UsersModule,
     DepositsModule,
     WithdrawalsModule,

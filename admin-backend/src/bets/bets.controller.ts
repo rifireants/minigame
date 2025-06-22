@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   Body,
+  Req,
   Res,
   NotFoundException,
   UseGuards,
@@ -18,7 +19,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @Controller('bets')
 export class BetsController {
-  constructor(private readonly betsService: BetsService) {}
+  constructor(private readonly betsService: BetsService) { }
 
   @Get()
   async findAll(@Res() res: Response): Promise<void> {
@@ -35,18 +36,26 @@ export class BetsController {
     return bet;
   }
 
+  // @Post()
+  // async create(@Body() bet: Bet): Promise<void> {
+  //   await this.betsService.create(bet);
+  // }
+
+  // @Put(':id')
+  // async update(@Param('id') id: string, @Body() update: Partial<Bet>): Promise<void> {
+  //   await this.betsService.update(+id, update);
+  // }
+
+  // @Delete(':id')
+  // async remove(@Param('id') id: string): Promise<void> {
+  //   await this.betsService.remove(+id);
+  // }
+
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() bet: Bet): Promise<void> {
-    await this.betsService.create(bet);
-  }
-
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() update: Partial<Bet>): Promise<void> {
-    await this.betsService.update(+id, update);
-  }
-
-  @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
-    await this.betsService.remove(+id);
+  async place(@Req() req: any, @Body() bet: Bet): Promise<{ success: boolean }> {
+    const user = req.user as any;  // req.user에 로그인된 유저 정보가 들어 있음
+    const ret =  this.betsService.placeBet(user.userid, bet);
+    return ret;
   }
 }

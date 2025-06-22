@@ -1,8 +1,9 @@
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Req, Body, UseGuards, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -10,7 +11,7 @@ export class AuthController {
     private readonly authService: AuthService,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
-  ) {}
+  ) { }
 
   @Post('login')
   login(@Body() body: { userid: string; password: string }) {
@@ -20,9 +21,9 @@ export class AuthController {
   @Post('register')
   async register(@Body() body: {
     userid: string;
-    username: string;
     password: string;
   }) {
+    console.log(body);
     const existing = await this.userRepo.findOne({ where: { userid: body.userid } });
     if (existing) {
       throw new BadRequestException('이미 존재하는 아이디입니다.');
@@ -39,5 +40,25 @@ export class AuthController {
 
     await this.userRepo.save(user);
     return { message: '회원가입 성공' };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('verify')
+  verify(@Req() req) {
+    // 토큰이 유효하면 guard가 통과되므로 그냥 200 OK 반환
+    return { success: true, user: req.user };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getMe(@Req() req) {
+    const userId = req.user.userid; // JWT payload에 담긴 userId
+    console.log(req.user, userId);
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+      select: ['id', 'username', 'level', 'point'], // 필요한 필드만
+    });
+
+    return user;
   }
 }

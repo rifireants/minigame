@@ -25,18 +25,18 @@ export class Bet {
   @Column()
   amount: number;
 
-  @Column()
+  @Column({ default: 0 })
   payout: number;
 
   @Column({ type: 'varchar' })
-  betType: 'odd' | 'even' | 'big' | 'small';
+  betType: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', default: 'pending' })
   result: 'win' | 'lose' | 'pending';
 
-  @Column({ type: 'varchar' })
-  status: 'active' | 'cancelled';
+  @Column({ type: 'varchar', default: 'active' })
+  status: 'active' | 'cancelled' | 'resolved';
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 }

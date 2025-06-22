@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-
+import AuthWrapper from "@/components/AuthWrapper";
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,7 +16,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <AuthWrapper>{children}</AuthWrapper>
+        <Toaster position="bottom-center" richColors />
       </body>
     </html>
   );

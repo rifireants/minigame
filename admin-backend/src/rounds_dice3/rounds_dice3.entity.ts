@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity()
+@Entity('rounds_dice3')
 export class Rounds_Dice3 {
   @PrimaryGeneratedColumn()
   id: number;
@@ -8,8 +8,11 @@ export class Rounds_Dice3 {
   @Column()
   round: number;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz' })
   startTime: Date;
+
+  @Column({ type: 'timestamptz' })
+  endTime: Date;
 
   @Column()
   dice1: number;
@@ -29,12 +32,12 @@ export class Rounds_Dice3 {
   @Column()
   participants: number;
 
-  @Column()
+  @Column({ name: 'totalBet' })
   totalBet: number;
 
   @Column({ type: 'varchar' })
   status: 'created' | 'started' | 'ended' | 'canceled';
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz' })
   createdAt: Date;
 }

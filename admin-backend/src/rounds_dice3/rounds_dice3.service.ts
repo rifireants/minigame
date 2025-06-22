@@ -8,7 +8,7 @@ export class Rounds_Dice3Service {
   constructor(
     @InjectRepository(Rounds_Dice3)
     private readonly repo: Repository<Rounds_Dice3>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Rounds_Dice3[]> {
     return this.repo.find();
@@ -23,7 +23,8 @@ export class Rounds_Dice3Service {
     const roundNumber = Math.floor(diffMs / (interval * 60 * 1000)) + 1;
 
     for (let i = 0; i < count; i++) {
-      const roundTime = new Date(nextTime.getTime() + i * interval * 60 * 1000);
+      const roundTimeS = new Date(new Date(nextTime.getTime() + i * interval * 60 * 1000).toISOString());
+      const roundTimeE = new Date(new Date(nextTime.getTime() + (i + 1) * interval * 60 * 1000).toISOString());
       const dice1 = Math.ceil(Math.random() * 6);
       const dice2 = Math.ceil(Math.random() * 6);
       const dice3 = Math.ceil(Math.random() * 6);
@@ -31,7 +32,8 @@ export class Rounds_Dice3Service {
 
       const round = this.repo.create({
         round: roundNumber + i,
-        startTime: roundTime,
+        startTime: roundTimeS,
+        endTime: roundTimeE,
         dice1,
         dice2,
         dice3,
@@ -40,10 +42,29 @@ export class Rounds_Dice3Service {
         participants: 0,
         totalBet: 0,
         status: 'created',
-        createdAt: new Date(),
+        createdAt: new Date(new Date().toISOString()),
       });
 
       await this.repo.save(round);
     }
+  }
+
+  async findCurrentRound(): Promise<Rounds_Dice3 | null> {
+    const now = new Date(Date.now()); // UTC 기준
+    const utcNow = new Date(now.toISOString()); // UTC 기준 Date 객체
+    const query = this.repo
+      .createQueryBuilder('round')
+      .where('round.startTime <= :now', { now: utcNow })
+      .andWhere('round.endTime > :now', { now: utcNow })
+      .orderBy('round.round', 'ASC');
+    return await query.getOne();
+  }
+
+  async findLastFinishedRound(): Promise<any> {
+    return this.repo
+      .createQueryBuilder("round")
+      .where("round.status = :status", { status: "ended" })
+      .orderBy("round.round", "DESC")
+      .getOne();
   }
 }

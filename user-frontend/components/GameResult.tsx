@@ -1,27 +1,53 @@
+'use client'
+
+import { useEffect, useState } from 'react';
 import Dice from "./Dice";
 import { Button } from "@/components/ui/button";
 
 export default function GameResult() {
+  const [round, setRound] = useState<number | null>(null);
+  const [dice, setDice] = useState<number[]>([]);
+  const [sum, setSum] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchLastRound = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:3001/rounds/last", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setRound(data.round);
+        setDice([data.dice1, data.dice2, data.dice3]);
+        setSum(data.sum);
+      } catch (err) {
+        console.error("이전 회차 결과 불러오기 실패:", err);
+      }
+    };
+
+    fetchLastRound();
+  }, []);
+
   return (
     <div className="card dice-result bg-white border border-gray-200 rounded-2xl shadow-2xl m-4">
       <div className="card-body p-6">
-        <h6 className="text-gray-500 mb-3 text-center">이전 회차 결과 (1961회차)</h6>
+        <h6 className="text-gray-500 mb-3 text-center">
+          {round ? `이전 회차 결과 (${round}회차)` : "결과 불러오는 중..."}
+        </h6>
 
-        {/* 주사위 컨테이너 */}
         <div id="diceContainer" className="dice-container flex justify-center gap-3 m-4">
-          <Dice face={3} />
-          <Dice face={5} />
-          <Dice face={6} />
+          {dice.map((face, index) => <Dice key={index} face={face} />)}
         </div>
-        {/* 결과 표시 */}
-        <Button
-          type="button"
-          data-group="odd_even"
-          data-value="odd"
-          className="w-full py-3 text-xl font-semibold text-white bg-[#28a745] border-0 rounded-lg"
-        >
-          <div className="font-bold">15 대 홀</div>
-        </Button>
+
+        {sum !== null && (
+          <div
+            className="w-full py-3 text-xl font-semibold text-white bg-[#28a745] border-0 rounded-lg text-center"
+          >
+            <div className="font-bold">
+              {sum} {sum <= 10 ? '소' : '대'} {sum % 2 === 0 ? '짝' : '홀'}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

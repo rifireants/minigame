@@ -1,10 +1,19 @@
 "use client";
 
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 export default function AuthModal() {
   const handleProceed = () => {
     window.location.href = "/game";
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      const modal = document.getElementById("signModal") as HTMLDialogElement | null;
+      modal?.showModal();
+    }
+  }, []);
 
   return (
     <dialog id="authModal" className="w-96 p-6 rounded-lg shadow-lg bg-white">

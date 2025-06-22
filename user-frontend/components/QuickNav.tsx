@@ -4,7 +4,7 @@ import { BsHouseFill, BsCalendarCheckFill, BsDice6Fill, BsChatDotsFill, BsPerson
 
 export default function QuickNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10 max-w-md mx-auto w-full">
+    <nav id="quickNav" className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10 max-w-md mx-auto w-full">
       <ul className="flex justify-between items-center py-3 px-6">
         <li className="flex-1">
           <a href="/" className="flex flex-col items-center text-gray-500 hover:text-[#3b82f6]">
