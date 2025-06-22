@@ -34,7 +34,7 @@ export default function GameBetting({ userData, roundData, onRefreshUser, isBett
     if (selectedHighLow) betTypes.push(selectedHighLow);
     if (selectedOddEven) betTypes.push(selectedOddEven);
 
-    const response = await fetch('http://localhost:3001/bets', {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bets`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

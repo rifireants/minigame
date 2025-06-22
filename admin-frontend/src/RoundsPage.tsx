@@ -39,7 +39,7 @@ const RoundCreateToolbar = () => {
       const localDate = new Date(startTime); // 로컬 시간 → Date 객체
       const utcISOString = localDate.toISOString(); // ✅ UTC 기준 ISO 문자열로 변환
 
-      await fetch('http://localhost:3001/rounds/generate', {
+      await fetch(`${process.env.REACT_APP_API_URL}/rounds/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

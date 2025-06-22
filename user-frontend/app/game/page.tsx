@@ -14,7 +14,7 @@ export default function GamePage() {
 
   const fetchUser = async () => {
     const token = localStorage.getItem('token');
-    const res = await fetch('http://localhost:3001/auth/me', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {
@@ -25,7 +25,7 @@ export default function GamePage() {
 
   const fetchRound = async () => {
     const token = localStorage.getItem('token');
-    const res = await fetch('http://localhost:3001/rounds/current', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/rounds/current`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {

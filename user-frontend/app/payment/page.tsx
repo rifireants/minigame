@@ -10,7 +10,7 @@ export default function PaymentPage() {
 
   const fetchUser = async () => {
     const token = localStorage.getItem('token');
-    const res = await fetch('http://localhost:3001/auth/me', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     if (res.ok) {

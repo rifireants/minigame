@@ -13,7 +13,7 @@ export default function GameResult() {
     const fetchLastRound = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3001/rounds/last", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/rounds/last`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
