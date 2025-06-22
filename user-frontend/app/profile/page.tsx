@@ -47,7 +47,7 @@ export default function ProfilePage() {
     <main className="bg-white min-h-screen pb-20 max-w-md mx-auto">
       <ProfileHeader />
       <ProfileCard userData={userData} />
-      {userData.level > 90 && <AdminMenu />}
+      {userData && userData.level > 90 && <AdminMenu />}
       <ProfileMenu />
       <RecentBets />
       <RecentPointLog />
