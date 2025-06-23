@@ -1,0 +1,94 @@
+1. 서버 기본 설정 (Ubuntu 22 기준)
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y git curl ufw
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+npm install -g pm2
+sudo apt install -y postgresql postgresql-contrib
+
+2. PostgreSQL 설정
+CREATE DATABASE veluna_db;
+CREATE USER velunau WITH ENCRYPTED PASSWORD 'qpffnsk123';
+GRANT ALL PRIVILEGES ON DATABASE veluna_db TO velunau;
+
+admin-backend
+.env
+PORT=3001
+JWT_SECRET=8d84b1cf46c5b4d9a64f9f232126f8459a7e01b27eb5a987ce3cf944ac32bbcf
+JWT_EXPIRES_IN=1d
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=velunau
+DB_PASSWORD=qpffnsk123
+DB_NAME=veluna_db
+
+
+3. NestJS (admin-backend) 실행
+# backend (NestJS)
+cd admin-backend
+npm install
+npm run build
+pm2 start dist/main.js --name backend
+
+
+4. React Admin Front (admin-frontend) 실행
+# admin-frontend (React)
+cd admin-frontend
+npm install
+npm run build
+pm2 start "npx serve -s build -l 3001" --name admin-frontend
+
+
+5. Next.js Front (user-frontend) 실행
+# user-frontend (Next.js)
+cd user-frontend
+npm install
+npm run build
+pm2 start "npm run start" --name user-frontend
+
+
+6. Nginx + HTTPS + 서브도메인 리버스 프록시 설정
+sudo apt install nginx certbot python3-certbot-nginx
+sudo ufw allow 'Nginx Full'
+
+/etc/nginx/sites-available/veluna
+server {
+    listen 80;
+    server_name www.veluna.fun;
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+server {
+    listen 80;
+    server_name admin.veluna.fun;
+    location / {
+        proxy_pass http://localhost:3001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+server {
+    listen 80;
+    server_name api.veluna.fun;
+    location / {
+        proxy_pass http://localhost:3002;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+
+sudo ln -s /etc/nginx/sites-available/veluna /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+
+
+7. Cloudflare DNS 설정
+	@	your server IP	Off
+A	www	your server IP	Off
+A	admin	your server IP	Off
+A	api	your server IP	Off

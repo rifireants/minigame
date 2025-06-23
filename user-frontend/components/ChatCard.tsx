@@ -28,7 +28,7 @@ export default function ChatCard({ name, age, location, imageUrl }: ChatCardProp
     >
       <div
         className="h-44 bg-cover bg-center"
-        style={{ backgroundImage: `url(${imageUrl})` }}
+        style={{ backgroundImage: `url('${imageUrl}')` }}
       >
         <Button
           type="button"
