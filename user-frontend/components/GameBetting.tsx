@@ -156,11 +156,17 @@ export default function GameBetting({ userData, roundData, onRefreshUser, isBett
                 className="form-control pl-10 py-3 border-2 border-gray-300 rounded-lg w-full"
                 id="betAmount"
                 placeholder="베팅할 포인트를 입력하세요"
-                min="1000"
-                max="172100"
+                min="10000"
+                max="100000000"
               />
             </div>
-            <div className="text-sm text-[#6c757d]">최소: 1,000P, 최대: 172,100P</div>
+            <div className="text-sm text-[#6c757d]">최소: 10,000원, 최대: 100,000,000원</div>
+          </div>
+          <div className="mt-3 mb-3 p-3 bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-700 font-semibold flex justify-between items-center">
+            <span>합산금액</span>
+            <span className="text-blue-600 text-base font-bold">
+              {(amount * 2 * [selectedHighLow, selectedOddEven].filter(Boolean).length).toLocaleString()}원
+            </span>
           </div>
           <Button
             type="submit"

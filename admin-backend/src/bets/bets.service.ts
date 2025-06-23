@@ -26,7 +26,10 @@ export class BetsService {
   }
 
   async findOne(id: number): Promise<Bet | null> {
-    return this.betRepository.findOne({ where: { id } });
+    return this.betRepository.findOne({
+      relations: ['user', 'round'],
+      where: { id }
+    });
   }
 
   async create(bet: Bet): Promise<void> {
@@ -45,6 +48,10 @@ export class BetsService {
     const round = await this.roundRepository.findOne({ where: { id: bet.roundId } });
     if (!round) {
       return { success: false, message: `회차 ID ${bet.roundId}가 존재하지 않습니다.` };
+    }
+
+    if (bet.amount < 10000 || bet.amount > 100000000) {
+      return { success: false, message: `베팅한도는 10,000 ~ 100,000,000원입니다.` };
     }
 
     const now = new Date();
@@ -103,23 +110,46 @@ export class BetsService {
       bet.result = isWin ? 'win' : 'lose';
       bet.status = 'resolved';
 
+      let payout = 0;
+
       if (isWin) {
         const user = await this.userRepository.findOneBy({ id: bet.userId });
 
         if (user) {
           if (betTypes.length == 1) {
-            user.point += bet.amount * 2;
+            payout = bet.amount * 2;
           } else if (betTypes.length == 2) {
             if (isWinPerfect)
-              user.point += bet.amount * 2.5;
-            else
-              user.point += bet.amount * 1.5;
+              payout = bet.amount * 4;
+            // else
+            //   user.point += bet.amount * 1.5;
           }
 
+          user.point += payout;
           await this.userRepository.save(user);
         }
       }
+      bet.payout = payout;
       await this.betRepository.save(bet);
     }
+  }
+
+  async findByUser(userId: number) {
+    return this.betRepository.find({
+      where: { userId },
+      relations: ['round'],
+      order: { createdAt: 'DESC' },
+    });  // userId에 해당하는 베팅 내역 반환
+  }
+
+  async getStatsByUser(userId: number) {
+    const bets = await this.findByUser(userId);
+    const winningBets = bets.filter(bet => bet.result === 'win');
+
+    return {
+      totalCount: bets.length,
+      winCount: winningBets.length,
+      payouts: winningBets.reduce((sum, bet) => sum + (bet.payout || 0), 0)
+    };
   }
 }

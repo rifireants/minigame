@@ -1,22 +1,32 @@
 'use client'
 import { useState } from 'react';
 
-export default function HistorytFilter() {
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+interface HistorytFilterProps {
+  typeFilter: 'all' | 'deposit' | 'withdrawal';
+  setTypeFilter: (value: 'all' | 'deposit' | 'withdrawal') => void;
+  statusFilter: 'all' | 'pending' | 'approved' | 'rejected';
+  setStatusFilter: (value: 'all' | 'pending' | 'approved' | 'rejected') => void;
+}
 
-  const typeOptions = [
-    { key: "all", label: "전체" },
-    { key: "charge", label: "충전" },
-    { key: "withdraw", label: "출금" },
-  ];
+const typeOptions = [
+  { key: "all", label: "전체" },
+  { key: "deposit", label: "충전" },
+  { key: "withdrawal", label: "출금" },
+];
 
-  const statusOptions = [
-    { key: "all", label: "전체" },
-    { key: "pending", label: "대기중" },
-    { key: "completed", label: "완료" },
-    { key: "rejected", label: "거부" },
-  ];
+const statusOptions = [
+  { key: "all", label: "전체" },
+  { key: "pending", label: "대기중" },
+  { key: "approved", label: "승인됨" },
+  { key: "rejected", label: "거부됨" },
+];
+
+export default function HistorytFilter({
+  typeFilter,
+  setTypeFilter,
+  statusFilter,
+  setStatusFilter,
+}: HistorytFilterProps) {
 
   const buttonStyle = (active: boolean) =>
     `px-4 py-2 text-sm rounded-md border font-medium mr-2 mb-2 ${active
@@ -35,7 +45,7 @@ export default function HistorytFilter() {
             {typeOptions.map((option) => (
               <button
                 key={option.key}
-                onClick={() => setTypeFilter(option.key)}
+                onClick={() => setTypeFilter(option.key as typeof typeFilter)}
                 className={buttonStyle(typeFilter === option.key)}
               >
                 {option.label}
@@ -51,7 +61,7 @@ export default function HistorytFilter() {
             {statusOptions.map((option) => (
               <button
                 key={option.key}
-                onClick={() => setStatusFilter(option.key)}
+                onClick={() => setStatusFilter(option.key as typeof statusFilter)}
                 className={buttonStyle(statusFilter === option.key)}
               >
                 {option.label}

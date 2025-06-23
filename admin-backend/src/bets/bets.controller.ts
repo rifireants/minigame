@@ -29,6 +29,27 @@ export class BetsController {
     res.json(data);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('user')
+  async getUserBets(@Req() req: any) {
+    const userId = req.user?.userid;  // JWT 토큰 또는 세션에서 userId 추출
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+    
+    return this.betsService.findByUser(userId);  // 사용자 ID를 기반으로 베팅 내역 필터링
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('stat')
+  async getStatsByUser(@Req() req: any) {
+    const userId = req.user?.userid;  // JWT 토큰 또는 세션에서 userId 추출
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+    return this.betsService.getStatsByUser(userId);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Bet> {
     const bet = await this.betsService.findOne(+id);
@@ -41,10 +62,10 @@ export class BetsController {
   //   await this.betsService.create(bet);
   // }
 
-  // @Put(':id')
-  // async update(@Param('id') id: string, @Body() update: Partial<Bet>): Promise<void> {
-  //   await this.betsService.update(+id, update);
-  // }
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() update: Partial<Bet>): Promise<void> {
+    await this.betsService.update(+id, update);
+  }
 
   // @Delete(':id')
   // async remove(@Param('id') id: string): Promise<void> {
@@ -55,7 +76,7 @@ export class BetsController {
   @Post()
   async place(@Req() req: any, @Body() bet: Bet): Promise<{ success: boolean }> {
     const user = req.user as any;  // req.user에 로그인된 유저 정보가 들어 있음
-    const ret =  this.betsService.placeBet(user.userid, bet);
+    const ret = this.betsService.placeBet(user.userid, bet);
     return ret;
   }
 }

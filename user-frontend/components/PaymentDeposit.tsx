@@ -96,7 +96,7 @@ export default function PaymentDeposit() {
                 max="1000000"
               />
             </div>
-            <small className="text-sm text-gray-500">최소: 10,000원, 최대: 1,000,000원</small>
+            <small className="text-sm text-gray-500">최소: 10,000원</small>
           </div>
 
           {/* 입금자명 */}

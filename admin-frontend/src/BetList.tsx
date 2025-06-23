@@ -21,7 +21,7 @@ const BetList = () => {
           tertiaryText={record => `결과: ${record.result}`}
         />
       ) : (
-        <Datagrid rowClick={false}>
+        <Datagrid>
           <FunctionField label="아이디" render={r => r?.user?.userid ?? r.userId} />
 
           <FunctionField

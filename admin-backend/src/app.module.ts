@@ -17,6 +17,8 @@ import { Rounds_Dice3 } from './rounds_dice3/rounds_dice3.entity';
 import { RoundsDice3Module } from './rounds_dice3/rounds_dice3.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TransactionsController } from './transactions/transactions.controller';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -47,9 +49,10 @@ import { ScheduleModule } from '@nestjs/schedule';
     BetsModule,
     AuthModule,
     SettingsModule,
-    RoundsDice3Module
+    RoundsDice3Module,
+    TransactionsModule
   ],
-  controllers: [AppController],
+  controllers: [AppController, TransactionsController],
   providers: [AppService],
 })
 export class AppModule { }

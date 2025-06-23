@@ -128,7 +128,7 @@ export default function PaymentWithdraw({ userData }: { userData: any }) {
                 max={maxAmount}
               />
             </div>
-            <small className="text-gray-500">최소: 10,000원, 최대: 172,100원</small>
+            <small className="text-gray-500">최소: 10,000원</small>
           </div>
 
           {/* 은행 선택 */}

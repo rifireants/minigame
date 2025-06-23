@@ -64,7 +64,7 @@ const WithdrawalList = () => {
   return (
     <List>
       {isSmall ? null : (
-        <Datagrid rowClick={false}>
+        <Datagrid>
           <FunctionField label="회원" render={record => record?.user?.userid ?? '-'} />
           <NumberField source="amount" label="금액" />
           <FunctionField label="은행" render={record => record?.bankName ?? '-'} />

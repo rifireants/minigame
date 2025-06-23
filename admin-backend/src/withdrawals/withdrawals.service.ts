@@ -10,13 +10,17 @@ export class WithdrawalsService {
   constructor(
     @InjectRepository(Withdrawal)
     private withdrawalRepository: Repository<Withdrawal>,
-    
+
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) { }
 
   async findAll(): Promise<Withdrawal[]> {
     return this.withdrawalRepository.find({ relations: ['user'] });
+  }
+
+  async findAllByUser(userId: number) {
+    return this.withdrawalRepository.find({ where: { userId } });
   }
 
   async findOne(id: number): Promise<Withdrawal | null> {

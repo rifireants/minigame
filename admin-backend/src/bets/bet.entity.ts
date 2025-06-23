@@ -25,7 +25,7 @@ export class Bet {
   @Column()
   amount: number;
 
-  @Column({ default: 0 })
+  @Column({ type: 'int', default: 0 })
   payout: number;
 
   @Column({ type: 'varchar' })

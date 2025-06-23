@@ -18,6 +18,10 @@ export class DepositsService {
     return this.depositRepository.find({ relations: ['user'] });
   }
 
+  async findAllByUser(userId: number) {
+    return this.depositRepository.find({ where: { userId } });
+  }
+
   async findOne(id: number): Promise<Deposit | null> {
     return this.depositRepository.findOne({
       where: { id },

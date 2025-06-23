@@ -10,5 +10,6 @@ import { User } from '../users/user.entity';
   imports: [TypeOrmModule.forFeature([Withdrawal, User])],
   controllers: [WithdrawalsController],
   providers: [WithdrawalsService],
+  exports: [WithdrawalsService],
 })
 export class WithdrawalsModule {}
