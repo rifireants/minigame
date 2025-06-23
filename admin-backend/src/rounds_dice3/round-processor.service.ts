@@ -91,4 +91,47 @@ export class RoundProcessorService {
   private roll(): number {
     return Math.floor(Math.random() * 6) + 1;
   }
+
+  // 🔥 매일 밤 11시에 다음날 라운드 자동 생성
+  @Cron('0 23 * * *')
+  async processNextDayRounds() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+
+    console.log('[🛠] 다음날 회차 생성 시작');
+    await this.generateRoundsForDate(tomorrow);
+    console.log('[✅] 다음날 회차 생성 완료');
+  }
+
+  // 🔥 회차 생성 로직
+  private async generateRoundsForDate(baseDate: Date) {
+    const roundsPerDay = 480; // 3분 간격 × 24시간
+    const intervalMinutes = 3;
+
+    for (let i = 0; i < roundsPerDay; i++) {
+      const startTime = new Date(baseDate);
+      startTime.setMinutes(i * intervalMinutes);
+
+      const endTime = new Date(startTime);
+      endTime.setMinutes(endTime.getMinutes() + intervalMinutes);
+
+      const round = new Rounds_Dice3();
+      round.round = i + 1; // ✅ 당일 기준 회차 번호 (1~480 고정)
+      round.startTime = startTime;
+      round.endTime = endTime;
+      round.status = 'created';
+
+      await this.roundRepo.save(round);
+    }
+  }
+
+  // 🔥 회차 번호 자동 증가
+  private async getNextRoundNumber(): Promise<number> {
+    const last = await this.roundRepo.find({
+      order: { round: 'DESC' },
+      take: 1,
+    });
+    return last.length > 0 ? last[0].round + 1 : 1;
+  }
 }
