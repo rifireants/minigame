@@ -54,7 +54,7 @@ sudo ufw allow 'Nginx Full'
 /etc/nginx/sites-available/veluna
 server {
     listen 80;
-    server_name www.veluna.fun;
+    server_name www.veluna.fun veluna.fun;
     location / {
         proxy_pass http://localhost:3000;
         proxy_set_header Host $host;

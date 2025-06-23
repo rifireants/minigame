@@ -28,7 +28,7 @@ const RecentBets = () => (
       ))}
     </div>
     <div className="text-center mt-4">
-      <a href="/history" className="text-[#ff4757] font-semibold text-sm">
+      <a href="/historyb" className="text-[#ff4757] font-semibold text-sm">
         전체 베팅 내역 보기
       </a>
     </div>
