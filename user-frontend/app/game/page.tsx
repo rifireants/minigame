@@ -61,7 +61,7 @@ export default function GamePage() {
       const now = new Date().getTime();
       const remaining = end - now;
 
-      setIsBettingClosed(remaining <= 10000);
+      setIsBettingClosed(remaining <= 20000);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -70,7 +70,7 @@ export default function GamePage() {
   return (
     <main className="bg-white min-h-screen pb-20 max-w-md mx-auto">
       <GameStatus roundData={roundData} fetchRound={fetchRound} isBettingClosed={isBettingClosed} />
-      <GameResult />
+      <GameResult key={roundData?.round} />
       <GameBetting userData={userData} roundData={roundData} onRefreshUser={fetchUser} isBettingClosed={isBettingClosed} />
       <GameNav />
       <QuickNav />

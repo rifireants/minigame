@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS = {
   depositFee: 0,
   withdrawMin: 10000,
   withdrawMax: 1000000,
-  withdrawFee1: 0,
+  withdrawFee: 0,
   withdrawFeeFixed: 0,
   allowGame: true,
   bettingTime: 30,
@@ -39,8 +39,7 @@ const DEFAULT_SETTINGS = {
   accountNumber: '',
   accountHolder: '',
   inviteCode: '',
-  signupBonus: 0,
-  allowSignup: true,
+  inviteBonus: 0,
 };
 
 const CustomToolbar = () => (
@@ -92,7 +91,7 @@ const SettingsPage = () => {
             <Box display="flex" gap={2}>
               <NumberInput source="withdrawMin" label="최소환전액" />
               <NumberInput source="withdrawMax" label="최대환전액" />
-              <NumberInput source="withdrawFee1" label="환전수수료율(%)" />
+              <NumberInput source="withdrawFee" label="환전수수료율(%)" />
             </Box>
             <NumberInput source="withdrawFeeFixed" label="환전고정수수료" />
           </Box>
@@ -125,8 +124,7 @@ const SettingsPage = () => {
 
         <FormTab label="가입코드">
           <TextInput source="inviteCode" label="가입코드" fullWidth />
-          <NumberInput source="signupBonus" label="가입축하 포인트" />
-          <BooleanInput source="allowSignup" label="회원가입 허용" />
+          <NumberInput source="inviteBonus" label="가입축하 포인트" />
         </FormTab>
       </TabbedForm>
     </div>

@@ -13,9 +13,9 @@ const ProfileCard = ({ userData }: {userData: any}) => {
         <div className="flex-1">
           <h2 className="text-lg font-bold text-[#333] mb-1">{userData ? userData.username : '로딩중...'}</h2>
           <p className="text-sm text-[#6c757d] mb-2">ID: {userData ? userData.userid : '로딩중...'}</p>
-          <span className="bg-[#fff3cd] text-[#856404] px-3 py-1 rounded-full text-sm font-semibold">
+          {/* <span className="bg-[#fff3cd] text-[#856404] px-3 py-1 rounded-full text-sm font-semibold">
             {userData ? userData.level : '로딩중...'}
-          </span>
+          </span> */}
         </div>
       </div>
 

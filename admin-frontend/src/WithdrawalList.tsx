@@ -46,11 +46,11 @@ const ApproveRejectButtons = ({ record }: { record: any }) => {
 
   return (
     <>
-      <Button onClick={() => handleAction('approved')} size="small">
+      <Button onClick={(e) => {e.stopPropagation(); handleAction('approved')}} size="small">
         <CheckIcon fontSize="small" style={{ marginRight: 4 }} />
         승인
       </Button>
-      <Button onClick={() => handleAction('rejected')} size="small">
+      <Button onClick={(e) => {e.stopPropagation(); handleAction('rejected')}} size="small">
         <CloseIcon fontSize="small" style={{ marginRight: 4 }} />
         거부
       </Button>
@@ -64,7 +64,7 @@ const WithdrawalList = () => {
   return (
     <List>
       {isSmall ? null : (
-        <Datagrid>
+        <Datagrid rowClick="edit">
           <FunctionField label="회원" render={record => record?.user?.userid ?? '-'} />
           <NumberField source="amount" label="금액" />
           <FunctionField label="은행" render={record => record?.bankName ?? '-'} />

@@ -15,8 +15,8 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
-  level: number;
+  @Column({ default: 'user' })
+  role: 'user' | 'admin';
 
   @Column()
   point: number;
@@ -26,6 +26,9 @@ export class User {
 
   @Column()
   accountNumber: string;
+
+  @Column({ nullable: true })
+  inviteCode: string;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

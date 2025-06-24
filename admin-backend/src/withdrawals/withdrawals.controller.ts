@@ -20,8 +20,11 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @Controller('withdrawals')
 export class WithdrawalsController {
-  constructor(private readonly withdrawalsService: WithdrawalsService) { }
+  constructor(
+    private readonly withdrawalsService: WithdrawalsService,
+  ) { }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Res() res: Response): Promise<void> {
     const data = await this.withdrawalsService.findAll();
@@ -30,6 +33,7 @@ export class WithdrawalsController {
     res.json(data);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string, @Res() res: Response): Promise<void> {
     const data = await this.withdrawalsService.findOne(+id);
@@ -60,6 +64,7 @@ export class WithdrawalsController {
     res.status(201).json({ success: true, message: '출금 신청 완료' });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -71,6 +76,7 @@ export class WithdrawalsController {
     res.status(200).json(result);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
     await this.withdrawalsService.remove(+id);

@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "already_used_userid": "이미 존재하는 아이디입니다",
+    "invalid_invitecode": "유효하지 않은 가입코드입니다",
+    "register_success": "회원가입이 완료되었습니다",
+    "invalid_login": "아이디 또는 비밀번호가 올바르지 않습니다"
+  },
+  "round": {
+    "not_found_current": "진행 중인 회차가 없습니다",
+    "not_found_last": "마지막 회차 정보를 찾을 수 없습니다",
+    "not_found": "회차 ID {{id}}가 존재하지 않습니다.",
+    "closed": "회차 {{id}}는 이미 마감되었습니다."
+  },
+  "bet": {
+    "amount_limit": "베팅한도는 10,000 ~ 100,000,000원입니다.",
+    "close_warning": "베팅 마감 10초 전에는 베팅할 수 없습니다.",
+    "insufficient_points": "포인트 부족 (보유: {{have}}, 요청: {{need}})",
+    "success": "베팅되었습니다"
+  },
+  "deposit": {
+    "success": "충전신청되었습니다"
+  },
+  "withdrawal": {
+    "success": "출금신청되었습니다"
+  }
+}

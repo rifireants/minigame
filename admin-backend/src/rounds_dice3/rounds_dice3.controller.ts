@@ -6,8 +6,11 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @Controller('rounds')
 export class Rounds_Dice3Controller {
-  constructor(private readonly service: Rounds_Dice3Service) { }
+  constructor(
+    private readonly service: Rounds_Dice3Service,
+  ) { }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Res() res: Response): Promise<void> {
     const rounds = await this.service.findAll();
@@ -16,12 +19,14 @@ export class Rounds_Dice3Controller {
     res.json(rounds);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('generate')
   async generate(@Body() body: any): Promise<void> {
     const { startTime, interval, count, memo } = body;
     await this.service.generateRounds(new Date(startTime), interval, count, memo);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('current')
   async getCurrentRound(@Res() res: Response): Promise<void> {
     const round = await this.service.findCurrentRound();
@@ -51,6 +56,7 @@ export class Rounds_Dice3Controller {
       .padStart(2, '0')}`;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('last')
   async getLastRound(@Res() res: Response): Promise<void> {
     const last = await this.service.findLastFinishedRound();

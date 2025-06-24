@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Bet } from './bet.entity';
 import { User } from 'src/users/user.entity';
 import { Rounds_Dice3 } from 'src/rounds_dice3/rounds_dice3.entity';
+import { Setting } from 'src/settings/settings.entity';
 
 @Injectable()
 export class BetsService {
@@ -16,6 +17,9 @@ export class BetsService {
 
     @InjectRepository(Rounds_Dice3)
     private readonly roundRepository: Repository<Rounds_Dice3>,
+
+    @InjectRepository(Setting)
+    private readonly settingRepository: Repository<Setting>,
   ) { }
 
   async findAll(): Promise<Bet[]> {
@@ -47,10 +51,24 @@ export class BetsService {
   async placeBet(userId: number, bet: Bet): Promise<{ success: boolean, message: string }> {
     const round = await this.roundRepository.findOne({ where: { id: bet.roundId } });
     if (!round) {
-      return { success: false, message: `회차 ID ${bet.roundId}가 존재하지 않습니다.` };
+      return {
+        success: false, message: `회차 ID ${bet.roundId}가 존재하지 않습니다.`, };
     }
 
-    if (bet.amount < 10000 || bet.amount > 100000000) {
+    const setting = await this.settingRepository.findOne({ where: {} });
+    let minBet = 10000;
+    let maxBet = 100000000;
+
+    if (setting) {
+      try {
+        minBet = setting.bettingMin ?? minBet;
+        maxBet = setting.bettingMax ?? maxBet;
+      } catch (e) {
+        console.warn('설정 파싱 오류:', e);
+      }
+    }
+
+    if (bet.amount < minBet || bet.amount > maxBet) {
       return { success: false, message: `베팅한도는 10,000 ~ 100,000,000원입니다.` };
     }
 
@@ -99,13 +117,15 @@ export class BetsService {
   async resolveBets(roundId: number, sum: number): Promise<void> {
     const bets = await this.betRepository.find({ where: { roundId, status: 'active' } });
 
-    const resultType = sum <= 10 ? 'small' : 'big';
+    const resultType = sum <= 10 ? 'low' : 'high';
     const oddEven = sum % 2 === 0 ? 'even' : 'odd';
 
     for (const bet of bets) {
       const betTypes = bet.betType.split(',');
       const isWin = betTypes.includes(resultType) || betTypes.includes(oddEven);
       const isWinPerfect = betTypes.includes(resultType) && betTypes.includes(oddEven);
+
+      console.log("----------", betTypes, resultType, oddEven)
 
       bet.result = isWin ? 'win' : 'lose';
       bet.status = 'resolved';
@@ -117,18 +137,24 @@ export class BetsService {
 
         if (user) {
           if (betTypes.length == 1) {
+            console.log("---------", "betTypes.length == 1");
             payout = bet.amount * 2;
           } else if (betTypes.length == 2) {
-            if (isWinPerfect)
+            console.log("---------", "betTypes.length == 2");
+            if (isWinPerfect) {
+              console.log("---------", "isWinPerfect");
               payout = bet.amount * 4;
+            }
             // else
             //   user.point += bet.amount * 1.5;
           }
 
+          console.log("-------------", "당첨금", user.point, payout)
           user.point += payout;
           await this.userRepository.save(user);
         }
       }
+      console.log("-------------", "당첨금", bet.payout, payout)
       bet.payout = payout;
       await this.betRepository.save(bet);
     }

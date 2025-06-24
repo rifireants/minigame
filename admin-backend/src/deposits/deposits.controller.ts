@@ -13,15 +13,17 @@ import {
 } from '@nestjs/common';
 import { DepositsService } from './deposits.service';
 import { Deposit } from './deposit.entity';
-import { User } from '../users/user.entity';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
 @Controller('deposits')
 export class DepositsController {
-  constructor(private readonly depositsService: DepositsService) { }
+  constructor(
+    private readonly depositsService: DepositsService,
+  ) { }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Res() res: Response): Promise<void> {
     const data = await this.depositsService.findAll();
@@ -30,6 +32,7 @@ export class DepositsController {
     res.json(data);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string, @Res() res: Response): Promise<any> {
     const deposit = await this.depositsService.findOne(+id);
@@ -57,6 +60,7 @@ export class DepositsController {
     res.status(201).json({ success: true, message: '충전 신청 완료' });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() update: Partial<Deposit>, @Res() res: Response): Promise<void> {
     const result = await this.depositsService.update(+id, update);
@@ -64,6 +68,7 @@ export class DepositsController {
     res.status(200).json(result);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
     await this.depositsService.remove(+id);

@@ -33,10 +33,10 @@ export class Setting {
   withdrawMax: number;
 
   @Column()
-  withdrawFee1: number;
+  withdrawFee: number;
 
   @Column()
-  withdrawFee2: number;
+  withdrawFeeFixed: number;
 
   @Column()
   bettingTime: number;
@@ -72,8 +72,5 @@ export class Setting {
   inviteCode: string;
 
   @Column()
-  signupBonus: number;
-
-  @Column()
-  allowSignup: boolean;
+  inviteBonus: number;
 }

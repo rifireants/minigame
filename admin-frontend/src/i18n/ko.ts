@@ -130,14 +130,16 @@ const koreanMessages: TranslationMessages = {
       DESC: '내림차순',
     },
     auth: {
-      auth_check_error: '로그인이 필요합니다.',
+      auth_check_error: '로그인이 필요합니다',
       user_menu: '프로필',
       username: '아이디',
       password: '비밀번호',
       email: '이메일',
       sign_in: '로그인',
-      sign_in_error: '인증 실패. 다시 시도해주세요.',
+      sign_in_error: '인증 실패. 다시 시도해주세요',
       logout: '로그아웃',
+      fetch_user_error: '사용자 정보를 불러오지 못했습니다',
+      no_permission: '권한이 없습니다'
     },
     notification: {
       updated: '항목이 수정되었습니다 |||| %{smart_count}개 항목이 수정되었습니다',
@@ -207,9 +209,13 @@ const koreanMessages: TranslationMessages = {
       name: '회원 |||| 회원 목록',
       fields: {
         id: '번호',
-        username: '아이디',
+        userid: '아이디',
+        username: '이름',
         email: '이메일',
         point: '포인트',
+        bankName: '은행명',
+        accountNumber: "계좌번호",
+        createdAt: "일시"
       },
     },
     deposits: {
@@ -233,14 +239,19 @@ const koreanMessages: TranslationMessages = {
       },
     },
     bets: {
-      name: '베팅 |||| 베팅 내역',
+      name: '베팅',
       fields: {
-        id: '번호',
-        userId: '회원번호',
-        amount: '금액',
-        betType: '베팅 종류',
+        id: '베팅아이디',
+        userId: '회원아이디',
+        round: '회차',
+        amount: '베팅금액',
+        betType: '베팅종류',
+        hlResult: '소/대',
+        oeResult: '홀/짝',
+        diceResult: '주사위결과',
         result: '결과',
         status: '상태',
+        payout: '당첨금',
         createdAt: '일시',
       },
     },

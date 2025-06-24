@@ -21,6 +21,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 export class BetsController {
   constructor(private readonly betsService: BetsService) { }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Res() res: Response): Promise<void> {
     const data = await this.betsService.findAll();
@@ -50,6 +51,7 @@ export class BetsController {
     return this.betsService.getStatsByUser(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Bet> {
     const bet = await this.betsService.findOne(+id);
@@ -62,6 +64,7 @@ export class BetsController {
   //   await this.betsService.create(bet);
   // }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() update: Partial<Bet>): Promise<void> {
     await this.betsService.update(+id, update);

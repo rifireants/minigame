@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { Setting } from 'src/settings/settings.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -11,6 +12,8 @@ export class AuthController {
     private readonly authService: AuthService,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(Setting)
+    private readonly settingRepo: Repository<Setting>,
   ) { }
 
   @Post('login')
@@ -22,16 +25,22 @@ export class AuthController {
   async register(@Body() body: {
     userid: string;
     password: string;
+    inviteCode: string;
   }) {
     const existing = await this.userRepo.findOne({ where: { userid: body.userid } });
     if (existing) {
       throw new BadRequestException('이미 존재하는 아이디입니다.');
     }
 
+    const inviteCodeSetting = await this.settingRepo.findOne({ where: {} });
+
+    if (!inviteCodeSetting || body.inviteCode !== inviteCodeSetting.inviteCode) {
+      throw new BadRequestException('유효하지 않은 가입코드입니다');
+    }
+
     const user = this.userRepo.create({
       ...body,
-      level: 1,
-      point: 0,
+      point: inviteCodeSetting.inviteBonus,
       bankName: '',
       accountNumber: '',
       createdAt: new Date(),
@@ -54,7 +63,7 @@ export class AuthController {
     const userId = req.user.userid; // JWT payload에 담긴 userId
     const user = await this.userRepo.findOne({
       where: { id: userId },
-      select: ['id', 'userid', 'username', 'level', 'point'], // 필요한 필드만
+      select: ['id', 'userid', 'username', 'role', 'point'], // 필요한 필드만
     });
 
     return user;

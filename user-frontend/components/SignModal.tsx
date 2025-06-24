@@ -9,22 +9,47 @@ export default function SignModal() {
   const [userid, setUserid] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
+
+  const validate = () => {
+    if (!userid.trim()) return "아이디를 입력하세요";
+    if (!password.trim()) return "비밀번호를 입력하세요";
+    if (showSignup) {
+      if (!username.trim()) return "이름을 입력하세요";
+      if (password.length < 6) return "비밀번호는 최소 6자 이상이어야 합니다";
+      if (!inviteCode.trim()) return "가입코드를 입력하세요";
+    }
+    return "";
+  };
 
   const handleAuth = async () => {
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     const endpoint = showSignup ? "/auth/register" : "/auth/login";
     setError("");
     try {
       const res = await fetch(process.env.NEXT_PUBLIC_API_URL + endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(showSignup ? { userid, username, password } : { userid, password }),
+        body: JSON.stringify(showSignup ? { userid, username, password, inviteCode } : { userid, password }),
       });
       const data = await res.json();
       if (res.ok && data.access_token) {
         localStorage.setItem("token", data.access_token);
         window.location.href = "/";
+      } else if (res.ok && showSignup) {
+        setError("회원가입이 완료되었습니다. 로그인 해주세요.");
+        setShowSignup(false);
       } else {
-        setError(data.message || "오류가 발생했습니다");
+        if (!res.ok && !showSignup) {
+          setError("아이디 또는 비밀번호가 올바르지 않습니다");
+        } else {
+          setError(data.message || "오류가 발생했습니다");
+        }
       }
     } catch (err) {
       setError("네트워크 오류");
@@ -66,6 +91,13 @@ export default function SignModal() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        {showSignup && <input
+          type="text"
+          placeholder="가입코드"
+          className="w-full p-2 border border-gray-300 rounded-md"
+          value={inviteCode}
+          onChange={(e) => setInviteCode(e.target.value)}
+        />}
         <Button
           onClick={handleAuth}
           className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
@@ -78,7 +110,10 @@ export default function SignModal() {
           <button
             type="button"
             className="ml-1 text-blue-600 hover:underline"
-            onClick={() => setShowSignup(!showSignup)}
+            onClick={() => {
+              setShowSignup(!showSignup);
+              setError("");
+            }}
           >
             {showSignup ? "로그인" : "회원가입"}
           </button>

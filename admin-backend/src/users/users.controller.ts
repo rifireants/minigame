@@ -9,6 +9,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Res() res: Response): Promise<void> {
     const users = await this.usersService.findAll();
@@ -17,6 +18,7 @@ export class UsersController {
     res.json(users.map(({ password, ...rest }) => rest));
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<any> {
     const user = await this.usersService.findOne(+id);
@@ -27,16 +29,19 @@ export class UsersController {
     return rest;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() user: User): Promise<void> {
     await this.usersService.create(user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() user: Partial<User>): Promise<void> {
     await this.usersService.update(+id, user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<void> {
     await this.usersService.remove(+id);

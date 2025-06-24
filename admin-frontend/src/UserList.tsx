@@ -22,7 +22,6 @@ const UserList = () => {
           <TextField source="id" />
           <TextField source="userid" />
           <TextField source="username" />
-          <TextField source="level" />
           <TextField source="point" />
           <TextField source="bankName" />
           <TextField source="accountNumber" />

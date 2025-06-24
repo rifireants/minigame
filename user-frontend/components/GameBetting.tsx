@@ -63,7 +63,7 @@ export default function GameBetting({ userData, roundData, onRefreshUser, isBett
     onRefreshUser();
   };
 
-  const isValid = (!!selectedHighLow || !!selectedOddEven) && amount >= 1000;
+  const isValid = (!!selectedHighLow || !!selectedOddEven) && amount >= 10000;
 
   return (
     <form

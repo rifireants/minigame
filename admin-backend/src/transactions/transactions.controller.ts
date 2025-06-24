@@ -6,6 +6,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) { }
 
+  @UseGuards(JwtAuthGuard)
   @Get('all')
   async getStats() {
     return this.transactionsService.getStats();

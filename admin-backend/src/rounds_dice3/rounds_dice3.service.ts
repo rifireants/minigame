@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Rounds_Dice3 } from './rounds_dice3.entity';
 
 @Injectable()
@@ -11,7 +11,16 @@ export class Rounds_Dice3Service {
   ) { }
 
   async findAll(): Promise<Rounds_Dice3[]> {
-    return this.repo.find();
+    return this.repo.find(
+      {
+        where: {
+          status: Not('ended'),
+        },
+        order: {
+          startTime: 'ASC',
+        }
+      }
+    );
   }
 
   async generateRounds(startTime: Date, interval: number, count: number, memo: string): Promise<void> {
@@ -54,7 +63,8 @@ export class Rounds_Dice3Service {
     const utcNow = new Date(now.toISOString()); // UTC 기준 Date 객체
     const query = this.repo
       .createQueryBuilder('round')
-      .where('round.startTime <= :now', { now: utcNow })
+      .where('round.status = :status', {status: 'started'})
+      .andWhere('round.startTime <= :now', { now: utcNow })
       .andWhere('round.endTime > :now', { now: utcNow })
       .orderBy('round.round', 'ASC');
     return await query.getOne();

@@ -10,6 +10,7 @@ import {
   NumberField,
   SimpleForm,
   SaveButton,
+  FunctionField,
 } from 'react-admin';
 import { Box, Stack, Button } from '@mui/material';
 import { useState } from 'react';
@@ -88,13 +89,13 @@ const RoundCreateToolbar = () => {
             onChange={e => setCount(parseInt(e.target.value, 10))}
             fullWidth
           />
-          <TextInput
+          {/* <TextInput
             label="메모"
             source="memo"
             value={memo}
             onChange={e => setMemo(e.target.value)}
             fullWidth
-          />
+          /> */}
           <SaveButton label="회차 생성" alwaysEnable />
         </Stack>
       </SimpleForm>
@@ -115,7 +116,17 @@ const RoundsPage = () => {
           <NumberField source="dice2" label="주사위2" />
           <NumberField source="dice3" label="주사위3" />
           <NumberField source="sum" label="총합" />
-          <TextField source="memo" label="메모" />
+          {/* 👇 경기결과 (대/소 + 홀/짝) */}
+          <FunctionField
+            label="경기결과"
+            render={record => {
+              if (typeof record.sum !== 'number') return '';
+              const size = record.sum >= 11 ? '대' : '소';
+              const parity = record.sum % 2 === 0 ? '짝' : '홀';
+              return `${size} ${parity}`;
+            }}
+          />
+          {/* <TextField source="memo" label="메모" /> */}
           <NumberField source="participants" label="참여자 수" />
           <NumberField source="totalBet" label="총베팅액" />
           <TextField source="status" label="상태" />

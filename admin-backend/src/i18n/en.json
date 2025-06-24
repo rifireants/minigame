@@ -1,0 +1,26 @@
+{
+  "auth": {
+    "already_used_userid": "This username already exists.",
+    "invalid_invitecode": "Invalid invite code.",
+    "register_success": "Registration completed successfully.",
+    "invalid_login": "Invalid username or password."
+  },
+  "round": {
+    "not_found_current": "There is no active round in progress.",
+    "not_found_last": "Could not find the latest round information.",
+    "not_found": "Round ID {{id}} does not exist.",
+    "closed": "Round {{id}} has already closed."
+  },
+  "bet": {
+    "amount_limit": "Betting limit is between 10,000 and 100,000,000 KRW.",
+    "close_warning": "You cannot place a bet within 10 seconds before closing.",
+    "insufficient_points": "Insufficient points (Have: {{have}}, Required: {{need}}).",
+    "success": "Your bet has been placed"
+  },
+  "deposit": {
+    "success": "Deposit request has been submitted."
+  },
+  "withdrawal": {
+    "success": "Withdrawal request has been submitted."
+  }
+}

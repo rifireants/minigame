@@ -22,21 +22,21 @@ const BetList = () => {
         />
       ) : (
         <Datagrid>
-          <FunctionField label="아이디" render={r => r?.user?.userid ?? r.userId} />
+          <FunctionField label="resources.bets.fields.userId" render={r => r?.user?.userid ?? r.userId} />
 
           <FunctionField
-            label="대소결과"
+            label="resources.bets.fields.hlResult"
             render={r => r?.round?.sum > 10 ? '대' : '소'}
           />
           <FunctionField
-            label="홀짝결과"
+            label="resources.bets.fields.oeResult"
             render={r => (r?.round?.sum % 2 === 0 ? '짝' : '홀')}
           />
 
-          <NumberField source="amount" label="베팅금액" />
+          <NumberField source="amount" label="resources.bets.fields.amount" />
 
           <FunctionField
-            label="주사위결과"
+            label="resources.bets.fields.diceResult"
             render={r =>
               r?.round
                 ? `${r.round.dice1}, ${r.round.dice2}, ${r.round.dice3}`
@@ -44,9 +44,9 @@ const BetList = () => {
             }
           />
 
-          <NumberField source="payout" label="당첨금" />
-          <TextField source="result" label="결과" />
-          <DateField source="createdAt" label="베팅시간" showTime />
+          <NumberField source="payout" label="resources.bets.fields.payout" />
+          <TextField source="result" label="resources.bets.fields.result" />
+          <DateField source="createdAt" label="resources.bets.fields.createdAt" showTime />
         </Datagrid>
       )}
     </List>

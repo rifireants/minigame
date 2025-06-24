@@ -7,9 +7,15 @@ npm install -g pm2
 sudo apt install -y postgresql postgresql-contrib
 
 2. PostgreSQL 설정
+sudo -u postgres psql
 CREATE DATABASE veluna_db;
 CREATE USER velunau WITH ENCRYPTED PASSWORD 'qpffnsk123';
 GRANT ALL PRIVILEGES ON DATABASE veluna_db TO velunau;
+
+sudo -u postgres psql -d veluna_db
+GRANT USAGE, CREATE ON SCHEMA public TO velunau;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO velunau;
+sudo -u postgres psql -d veluna_db -f ./setting.sql
 
 admin-backend
 .env
@@ -92,3 +98,7 @@ sudo nginx -t && sudo systemctl reload nginx
 A	www	your server IP	Off
 A	admin	your server IP	Off
 A	api	your server IP	Off
+
+
+
+INSERT INTO public.setting VALUES ('singleton', true, 0, '2025-06-22T15:00:41.879Z', '2025-06-22T15:00:51.415Z', 10000, 100000000, 0, 10000, 100000000, 0, 1000, 160, 10, 10, 10000, 100000000, 2, 4, '별도 문의', '담당자에게 문의하세요', '홍길동', '7979', 10000);
