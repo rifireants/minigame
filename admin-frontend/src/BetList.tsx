@@ -33,8 +33,6 @@ const BetList = () => {
             render={r => (r?.round?.sum % 2 === 0 ? '짝' : '홀')}
           />
 
-          <NumberField source="amount" label="resources.bets.fields.amount" />
-
           <FunctionField
             label="resources.bets.fields.diceResult"
             render={r =>
@@ -44,6 +42,7 @@ const BetList = () => {
             }
           />
 
+          <NumberField source="amount" label="resources.bets.fields.amount" />
           <NumberField source="payout" label="resources.bets.fields.payout" />
           <TextField source="result" label="resources.bets.fields.result" />
           <DateField source="createdAt" label="resources.bets.fields.createdAt" showTime />

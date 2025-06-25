@@ -21,7 +21,7 @@ interface BetItem {
   };
 }
 
-export default function HistorytList() {
+export default function HistorybList() {
   const [bets, setBets] = useState<BetItem[]>([]);
 
   const translateBetType = (betType: string) => {
@@ -66,7 +66,7 @@ export default function HistorytList() {
                 <span className="text-gray-500 text-xs">{new Date(item.createdAt).toLocaleString()}</span>
               </div>
               <span
-                className={`text-xs font-semibold px-3 py-1 rounded text-white ${item.result === "승리" ? "bg-green-600" : "bg-red-600"
+                className={`text-xs font-semibold px-3 py-1 rounded text-white ${item.result === "win" ? "bg-green-500" : item.result === "lose" ? "bg-red-500" : "bg-gray-500"
                   }`}
               >
                 {item.result}

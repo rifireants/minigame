@@ -7,7 +7,7 @@ interface Stat {
   payouts: number;
 }
 
-export default function HistorytStat() {
+export default function HistorybStat() {
   const [stat, setStat] = useState<Stat | null>(null);
 
   useEffect(() => {

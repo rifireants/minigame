@@ -19,6 +19,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TransactionsController } from './transactions/transactions.controller';
 import { TransactionsModule } from './transactions/transactions.module';
+import { PointsModule } from './points/points.module';
+import { Point } from './points/point.entity';
 
 @Module({
   imports: [
@@ -35,7 +37,7 @@ import { TransactionsModule } from './transactions/transactions.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Deposit, Withdrawal, Bet, Rounds_Dice3, Setting],
+        entities: [User, Deposit, Withdrawal, Bet, Rounds_Dice3, Setting, Point],
         synchronize: true, // 개발 중엔 true (자동 테이블 생성)
         logging: true,
         logger: 'advanced-console',
@@ -50,7 +52,8 @@ import { TransactionsModule } from './transactions/transactions.module';
     AuthModule,
     SettingsModule,
     RoundsDice3Module,
-    TransactionsModule
+    TransactionsModule,
+    PointsModule
   ],
   controllers: [AppController, TransactionsController],
   providers: [AppService],

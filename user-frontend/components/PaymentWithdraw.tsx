@@ -222,7 +222,7 @@ export default function PaymentWithdraw({ userData }: { userData: any }) {
               <div key={idx} className="flex flex-col space-y-2 border-b border-gray-200 pb-3">
                 <div className="flex justify-between items-center">
                   <div className="flex space-x-2">
-                    <span className="font-semibold text-blue-500">충전</span>
+                    <span className="font-semibold text-blue-500">출금</span>
                     <span className="text-sm text-gray-500">
                       {new Date(item.createdAt).toLocaleString("ko-KR", {
                         month: "2-digit",

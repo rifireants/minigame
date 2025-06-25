@@ -1,5 +1,5 @@
 // components/RecentPointsSection.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BsCoin } from "react-icons/bs";
 
 const recentPoints = [
@@ -10,30 +10,61 @@ const recentPoints = [
   { description: '2025-06-18 첫로그인', time: '06/18 00:02', amount: 100, status: 'positive' },
 ];
 
-const RecentPointsSection = () => (
-  <div className="p-5 border-t border-[#f1f3f4]">
-    <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-3">
-      <BsCoin className="text-xl" />최근 포인트 내역
-    </h3>
-    <div className="space-y-4">
-      {recentPoints.map((point, index) => (
-        <div key={index} className="flex items-center justify-between p-4 border-b border-[#f1f3f4]">
-          <div>
-            <div className="font-semibold text-[#495057]">{point.description}</div>
-            <div className="text-sm text-[#6c757d]">{point.time}</div>
-          </div>
-          <div className={`font-semibold text-${point.status === 'positive' ? 'green-500' : 'red-500'}`}>
-            {point.status === 'positive' ? `+${point.amount}P` : `-${point.amount}P`}
-          </div>
-        </div>
-      ))}
-    </div>
-    <div className="text-center mt-4">
-      <a href="/point" className="text-[#ff4757] font-semibold text-sm">
-        전체 포인트 내역 보기
-      </a>
-    </div>
-  </div>
-);
+interface PointItem {
+  id: number;
+  userId: number;
+  type: 'increase' | 'decrease';
+  amount: number;
+  reason: string;
+  createdAt: string;
+}
 
-export default RecentPointsSection;
+export default function RecentPointsSection() {
+  const [history, setHistory] = useState<PointItem[]>([]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/points`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setHistory(await res.json());
+      } catch (err) {
+        console.error("최근 포인트 내역 조회 실패", err);
+      }
+    };
+
+    fetchHistory();
+  }, []);
+
+  return (
+    <div className="p-5 border-t border-[#f1f3f4]">
+      <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-3">
+        <BsCoin className="text-xl" />최근 포인트 내역
+      </h3>
+      {history && (
+        <div className="space-y-4">
+          {history.map((point, index) => (
+            <div key={index} className="flex items-center justify-between p-4 border-b border-[#f1f3f4]">
+              <div>
+                <div className="font-semibold text-[#495057]">{point.reason}</div>
+                <div className="text-sm text-[#6c757d]">{new Date(point.createdAt).toLocaleString()}</div>
+              </div>
+              <div className={`font-semibold text-${point.type === 'increase' ? 'green-500' : 'red-500'}`}>
+                {point.type === 'increase' ? `+${point.amount.toLocaleString()}P` : `-${point.amount.toLocaleString()}P`}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="text-center mt-4">
+        <a href="/point" className="text-[#ff4757] font-semibold text-sm">
+          전체 포인트 내역 보기
+        </a>
+      </div>
+    </div>
+  );
+}

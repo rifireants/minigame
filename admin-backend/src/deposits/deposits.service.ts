@@ -3,10 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Deposit } from './deposit.entity';
 import { User } from '../users/user.entity';
+import { PointsService } from 'src/points/points.service';
 
 @Injectable()
 export class DepositsService {
   constructor(
+    private readonly pointsService: PointsService,
     @InjectRepository(Deposit)
     private depositRepository: Repository<Deposit>,
 
@@ -44,6 +46,7 @@ export class DepositsService {
     if (shouldReward) {
       // 유저 포인트 적립
       await this.userRepository.increment({ id: existing.userId }, 'point', existing.amount);
+      await this.pointsService.create(existing.userId, 'increase', existing.amount, '충전');
     }
 
     return this.depositRepository.findOne({ where: { id }, relations: ['user'] });

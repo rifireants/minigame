@@ -63,7 +63,7 @@ export class Rounds_Dice3Service {
     const utcNow = new Date(now.toISOString()); // UTC 기준 Date 객체
     const query = this.repo
       .createQueryBuilder('round')
-      .where('round.status = :status', {status: 'started'})
+      .where('round.status = :status', { status: 'started' })
       .andWhere('round.startTime <= :now', { now: utcNow })
       .andWhere('round.endTime > :now', { now: utcNow })
       .orderBy('round.round', 'ASC');
@@ -71,10 +71,9 @@ export class Rounds_Dice3Service {
   }
 
   async findLastFinishedRound(): Promise<any> {
-    return this.repo
-      .createQueryBuilder("round")
-      .where("round.status = :status", { status: "ended" })
-      .orderBy("round.round", "DESC")
-      .getOne();
+    return this.repo.findOne({
+      where: { status: 'ended' },
+      order: { round: 'DESC' },
+    });
   }
 }

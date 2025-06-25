@@ -7,6 +7,7 @@ import { JwtStrategy } from 'src/auth/jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/user.entity';
 import { Setting } from 'src/settings/settings.entity';
+import { PointsModule } from 'src/points/points.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { Setting } from 'src/settings/settings.entity';
       }),
       inject: [ConfigService],
     }),
+    PointsModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

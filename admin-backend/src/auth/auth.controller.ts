@@ -5,11 +5,13 @@ import { Repository } from 'typeorm';
 import { User } from 'src/users/user.entity';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Setting } from 'src/settings/settings.entity';
+import { PointsService } from 'src/points/points.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly pointService: PointsService,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
     @InjectRepository(Setting)
@@ -47,6 +49,7 @@ export class AuthController {
     });
 
     await this.userRepo.save(user);
+    await this.pointService.create(user.id, 'increase', inviteCodeSetting.inviteBonus, '가입 보너스');
     return { message: '회원가입 성공' };
   }
 

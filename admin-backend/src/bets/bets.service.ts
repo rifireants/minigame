@@ -1,14 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Bet } from './bet.entity';
 import { User } from 'src/users/user.entity';
 import { Rounds_Dice3 } from 'src/rounds_dice3/rounds_dice3.entity';
 import { Setting } from 'src/settings/settings.entity';
+import { PointsService } from 'src/points/points.service';
 
 @Injectable()
 export class BetsService {
   constructor(
+    private readonly pointsService: PointsService,
     @InjectRepository(Bet)
     private betRepository: Repository<Bet>,
 
@@ -41,6 +43,31 @@ export class BetsService {
   }
 
   async update(id: number, update: Partial<Bet>): Promise<void> {
+    const bet = await this.betRepository.findOne({
+      relations: ['round'],
+      where: { id }
+    });
+    if (!bet) throw new NotFoundException('Bet not found');
+
+    const resultType = bet.round.sum <= 10 ? 'low' : 'high';
+    const oddEven = bet.round.sum % 2 === 0 ? 'even' : 'odd';
+
+    const betTypes = update.betType?.split(',') || [];
+    const isWin = betTypes.includes(resultType) || betTypes.includes(oddEven);
+    const isWinPerfect = betTypes.includes(resultType) && betTypes.includes(oddEven);
+    let payout = 0;
+    if (isWin) {
+      if (betTypes.length == 1) {
+        payout = bet.amount * 2;
+      } else if (betTypes.length == 2) {
+        if (isWinPerfect) {
+          payout = bet.amount * 4;
+        }
+        // else
+        //   user.point += bet.amount * 1.5;
+      }
+    }
+    update.payout = payout;
     await this.betRepository.update(id, update);
   }
 
@@ -52,7 +79,8 @@ export class BetsService {
     const round = await this.roundRepository.findOne({ where: { id: bet.roundId } });
     if (!round) {
       return {
-        success: false, message: `회차 ID ${bet.roundId}가 존재하지 않습니다.`, };
+        success: false, message: `회차 ID ${bet.roundId}가 존재하지 않습니다.`,
+      };
     }
 
     const setting = await this.settingRepository.findOne({ where: {} });
@@ -101,6 +129,7 @@ export class BetsService {
     // ✅ 포인트 차감 (선 베팅 차감 방식)
     user.point -= bet.amount;
     await this.userRepository.save(user);
+    await this.pointsService.create(userId, 'decrease', bet.amount, `베팅 (${bet.betType})`);
 
     const newBet = this.betRepository.create({
       ...bet,
@@ -111,6 +140,18 @@ export class BetsService {
     });
 
     await this.betRepository.save(newBet);
+
+    await this.roundRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        participants: () =>
+          `(SELECT COUNT(DISTINCT "userId") FROM bet WHERE "roundId" = ${newBet.roundId})`,
+        totalBet: () =>
+          `(SELECT COALESCE(SUM(amount), 0) FROM bet WHERE "roundId" = ${newBet.roundId})`,
+      })
+      .where('id = :roundId', { roundId: newBet.roundId })
+      .execute();
     return { success: true, message: "베팅되었습니다!" };
   }
 
@@ -125,8 +166,6 @@ export class BetsService {
       const isWin = betTypes.includes(resultType) || betTypes.includes(oddEven);
       const isWinPerfect = betTypes.includes(resultType) && betTypes.includes(oddEven);
 
-      console.log("----------", betTypes, resultType, oddEven)
-
       bet.result = isWin ? 'win' : 'lose';
       bet.status = 'resolved';
 
@@ -137,24 +176,20 @@ export class BetsService {
 
         if (user) {
           if (betTypes.length == 1) {
-            console.log("---------", "betTypes.length == 1");
             payout = bet.amount * 2;
           } else if (betTypes.length == 2) {
-            console.log("---------", "betTypes.length == 2");
             if (isWinPerfect) {
-              console.log("---------", "isWinPerfect");
               payout = bet.amount * 4;
             }
             // else
             //   user.point += bet.amount * 1.5;
           }
 
-          console.log("-------------", "당첨금", user.point, payout)
           user.point += payout;
           await this.userRepository.save(user);
+          await this.pointsService.create(bet.userId, 'increase', payout, `베팅 당첨 (회차 ${bet.roundId})`);
         }
       }
-      console.log("-------------", "당첨금", bet.payout, payout)
       bet.payout = payout;
       await this.betRepository.save(bet);
     }
@@ -177,5 +212,14 @@ export class BetsService {
       winCount: winningBets.length,
       payouts: winningBets.reduce((sum, bet) => sum + (bet.payout || 0), 0)
     };
+  }
+
+  async findRecentByUser(userId: number, limit: number): Promise<Bet[]> {
+    return this.betRepository.find({
+      relations: ['round'],
+      where: { userId },
+      order: { createdAt: 'DESC' },
+      take: limit,
+    });
   }
 }

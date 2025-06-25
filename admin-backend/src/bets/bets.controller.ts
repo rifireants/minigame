@@ -31,13 +31,24 @@ export class BetsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('recent')
+  async getRecentBets(@Req() req: any) {
+    const userId = req.user?.userid;
+    if (!userId) {
+      throw new Error('User not authenticated');
+    }
+
+    return this.betsService.findRecentByUser(userId, 5); // 최근 5개
+  }
+  
+  @UseGuards(JwtAuthGuard)
   @Get('user')
   async getUserBets(@Req() req: any) {
     const userId = req.user?.userid;  // JWT 토큰 또는 세션에서 userId 추출
     if (!userId) {
       throw new Error('User not authenticated');
     }
-    
+
     return this.betsService.findByUser(userId);  // 사용자 ID를 기반으로 베팅 내역 필터링
   }
 

@@ -31,7 +31,7 @@ const ProfileMenu = () => {
           <BsChevronRight className="mr-2" />
         </a>
         <a
-          href='#'
+          href='/historyt'
           className="flex items-center justify-between p-4 text-[#333] hover:bg-[#fff5f5] hover:text-[#ff4757] hover:transform hover:translate-x-3 rounded-lg"
         >
           <div className="flex items-center gap-3">
@@ -43,7 +43,7 @@ const ProfileMenu = () => {
           <BsChevronRight className="mr-2" />
         </a>
         <a
-          href='#'
+          href='/historyb'
           className="flex items-center justify-between p-4 text-[#333] hover:bg-[#fff5f5] hover:text-[#ff4757] hover:transform hover:translate-x-3 rounded-lg"
         >
           <div className="flex items-center gap-3">

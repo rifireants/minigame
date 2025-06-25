@@ -4,10 +4,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Withdrawal } from './withdrawal.entity';
 import { User } from '../users/user.entity';
+import { PointsService } from 'src/points/points.service';
 
 @Injectable()
 export class WithdrawalsService {
   constructor(
+    private readonly pointsService: PointsService,
     @InjectRepository(Withdrawal)
     private withdrawalRepository: Repository<Withdrawal>,
 
@@ -43,11 +45,8 @@ export class WithdrawalsService {
 
     if (shouldDeduct) {
       // 포인트 차감
-      await this.userRepository.decrement(
-        { id: existing.userId },
-        'point',
-        existing.amount,
-      );
+      await this.userRepository.decrement({ id: existing.userId }, 'point', existing.amount,);
+      await this.pointsService.create(existing.userId, 'decrease', existing.amount, '출금');
     }
 
     return this.withdrawalRepository.findOne({ where: { id }, relations: ['user'] });
