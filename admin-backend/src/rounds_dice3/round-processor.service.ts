@@ -64,7 +64,7 @@ export class RoundProcessorService {
     return Math.floor(Math.random() * 6) + 1;
   }
 
-  @Cron('50 9 * * *') // 매일 22시에 실행
+  @Cron('0 22 * * *') // 매일 22시에 실행
   async processNextDayRounds() {
     console.log('[🛠] 다음날 회차 생성 시작');
 
