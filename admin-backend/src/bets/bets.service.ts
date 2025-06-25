@@ -156,7 +156,10 @@ export class BetsService {
   }
 
   async resolveBets(roundId: number, sum: number): Promise<void> {
-    const bets = await this.betRepository.find({ where: { roundId, status: 'active' } });
+    const bets = await this.betRepository.find({
+      relations: ['round'],
+      where: { roundId, status: 'active' }
+    });
 
     const resultType = sum <= 10 ? 'low' : 'high';
     const oddEven = sum % 2 === 0 ? 'even' : 'odd';
@@ -187,7 +190,7 @@ export class BetsService {
 
           user.point += payout;
           await this.userRepository.save(user);
-          await this.pointsService.create(bet.userId, 'increase', payout, `베팅 당첨 (회차 ${bet.roundId})`);
+          await this.pointsService.create(bet.userId, 'increase', payout, `베팅 당첨 (회차 ${bet.round.round})`);
         }
       }
       bet.payout = payout;
