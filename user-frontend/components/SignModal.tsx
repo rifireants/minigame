@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export default function SignModal() {
@@ -56,8 +56,24 @@ export default function SignModal() {
     }
   };
 
+  useEffect(() => {
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        const modal = document.getElementById("signModal") as HTMLDialogElement | null;
+        if (modal?.open) {
+          e.preventDefault();
+          e.stopPropagation(); // ESC 입력 자체 막기
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleEscKey);
+    return () => window.removeEventListener("keydown", handleEscKey);
+  }, []);
+
   return (
-    <dialog id="signModal" className="w-96 p-6 rounded-lg shadow-lg bg-white">
+    <dialog id="signModal" className="w-96 p-6 rounded-lg shadow-lg bg-white"
+      onCancel={(e) => e.preventDefault()}>
       <div className="flex justify-center mb-5">
         <i className="text-blue-600 text-5xl bi bi-person-fill" />
       </div>

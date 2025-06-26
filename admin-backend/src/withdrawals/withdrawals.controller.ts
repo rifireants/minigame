@@ -11,6 +11,7 @@ import {
   Res,
   NotFoundException,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { WithdrawalsService } from './withdrawals.service';
 import { Withdrawal } from './withdrawal.entity';
@@ -26,12 +27,33 @@ export class WithdrawalsController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(@Res() res: Response): Promise<void> {
-    const data = await this.withdrawalsService.findAll();
+  async findAll(@Res() res: Response, @Query('sort') sort?: string): Promise<void> {
+    let sortField = 'id';
+    let sortOrder: 'ASC' | 'DESC' = 'ASC';
+
+    if (sort) {
+      const [field, order] = JSON.parse(sort); // React-Admin은 sort=["name","DESC"] 형식으로 보냄
+      sortField = field;
+      sortOrder = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    }
+
+    const data = await this.withdrawalsService.findAll(sortField, sortOrder);
     res.setHeader('Content-Range', `withdrawals 0-${data.length - 1}/${data.length}`);
     res.setHeader('Access-Control-Expose-Headers', 'Content-Range');
     res.json(data);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('user')
+  async findAllByUser(@Req() req, @Res() res: Response): Promise<void> {
+    const userId = req.user.userid;
+    console.log('-------', userId);
+    const data = await this.withdrawalsService.findAllByUser(userId);
+    res.setHeader('Content-Range', `deposits 0-${data.length - 1}/${data.length}`);
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Range');
+    res.json(data);
+  }
+
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')

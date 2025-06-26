@@ -1,6 +1,7 @@
 import {
   List,
   Datagrid,
+  TextField,
   NumberField,
   DateField,
   FunctionField,
@@ -65,11 +66,11 @@ const WithdrawalList = () => {
     <List>
       {isSmall ? null : (
         <Datagrid rowClick="edit">
-          <FunctionField label="회원" render={record => record?.user?.userid ?? '-'} />
+          <TextField source="user.userid" label="회원" />
           <NumberField source="amount" label="금액" />
-          <FunctionField label="은행" render={record => record?.bankName ?? '-'} />
-          <FunctionField label="계좌번호" render={record => record?.accountNumber ?? '-'} />
-          <FunctionField label="예금주" render={record => record?.accountHolder ?? '-'} />
+          <TextField source="bankName" label="은행" />
+          <TextField source="accountNumber" label="계좌번호" />
+          <TextField source="accountHolder" label="예금주" />
           <DateField source="createdAt" label="신청일" showTime />
           <FunctionField
             label="상태"

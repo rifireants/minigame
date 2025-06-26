@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, NotFoundException, UseGuards, Res } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, NotFoundException, UseGuards, Res, Query } from '@nestjs/common';
 import { Response } from 'express';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
@@ -11,8 +11,17 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(@Res() res: Response): Promise<void> {
-    const users = await this.usersService.findAll();
+  async findAll(@Res() res: Response, @Query('sort') sort?: string): Promise<void> {
+    let sortField = 'id';
+    let sortOrder: 'ASC' | 'DESC' = 'ASC';
+
+    if (sort) {
+      const [field, order] = JSON.parse(sort); // React-Admin은 sort=["name","DESC"] 형식으로 보냄
+      sortField = field;
+      sortOrder = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    }
+
+    const users = await this.usersService.findAll(sortField, sortOrder);
     res.setHeader('Content-Range', `users 0-${users.length - 1}/${users.length}`);
     res.setHeader('Access-Control-Expose-Headers', 'Content-Range');
     res.json(users.map(({ password, ...rest }) => rest));

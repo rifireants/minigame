@@ -16,12 +16,38 @@ export class DepositsService {
     private readonly userRepository: Repository<User>,
   ) { }
 
-  async findAll(): Promise<Deposit[]> {
-    return this.depositRepository.find({ relations: ['user'] });
+  // async findAll(sortField = 'id', sortOrder: 'ASC' | 'DESC' = 'ASC'): Promise<Deposit[]> {
+  //   return this.depositRepository.find({
+  //     relations: ['user'],
+  //     order: {
+  //       [sortField]: sortOrder,
+  //     },
+  //   });
+  // }
+
+  async findAll(
+    sortField = 'id',
+    sortOrder: 'ASC' | 'DESC' = 'DESC'
+  ): Promise<Deposit[]> {
+    const qb = this.depositRepository
+      .createQueryBuilder('deposit')
+      .leftJoinAndSelect('deposit.user', 'user');
+
+    // 정렬 필드 처리
+    if (sortField === 'user.userid') {
+      qb.orderBy('user.userid', sortOrder);
+    } else {
+      qb.orderBy(`deposit.${sortField}`, sortOrder);
+    }
+
+    return qb.getMany();
   }
 
   async findAllByUser(userId: number) {
-    return this.depositRepository.find({ where: { userId } });
+    return this.depositRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' }
+    });
   }
 
   async findOne(id: number): Promise<Deposit | null> {

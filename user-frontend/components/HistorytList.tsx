@@ -23,12 +23,12 @@ export default function HistorytList({ typeFilter, statusFilter }: { typeFilter:
       try {
         const token = localStorage.getItem("token");
         const [depositsRes, withdrawalsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/deposits`, {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/deposits/user`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/withdrawals`, {
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/withdrawals/user`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },

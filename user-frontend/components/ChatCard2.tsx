@@ -23,9 +23,16 @@ export default function ChatCard2({
   interests,
   status,
   newBadge, }: ChatCardProps) {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const modal = document.getElementById("authModal") as HTMLDialogElement;
+    if (modal) modal.showModal();
+  };
+
   return (
     <a
-      href="/game"
+      href="#"
+      onClick={handleClick}
       className="block rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition"
       data-category="new 20s"
     >

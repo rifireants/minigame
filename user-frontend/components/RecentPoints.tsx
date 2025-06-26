@@ -45,7 +45,7 @@ export default function RecentPointsSection() {
       <h3 className="text-lg font-bold text-[#333] mb-4 flex items-center gap-3">
         <BsCoin className="text-xl" />최근 포인트 내역
       </h3>
-      {history && (
+      {history.length > 0 && (
         <div className="space-y-4">
           {history.map((point, index) => (
             <div key={index} className="flex items-center justify-between p-4 border-b border-[#f1f3f4]">

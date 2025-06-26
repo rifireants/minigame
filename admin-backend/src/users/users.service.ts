@@ -10,8 +10,12 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) { }
 
-  async findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async findAll(sortField = 'id', sortOrder: 'ASC' | 'DESC' = 'ASC'): Promise<User[]> {
+    return this.usersRepository.find({
+      order: {
+        [sortField]: sortOrder,
+      },
+    });
   }
 
   async findOne(id: number): Promise<User | null> {
@@ -23,7 +27,11 @@ export class UsersService {
   }
 
   async update(id: number, partialUser: Partial<User>): Promise<void> {
-    await this.usersRepository.update(id, partialUser);
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (!user) return;
+
+    Object.assign(user, partialUser);
+    await this.usersRepository.save(user); // <-- @BeforeUpdate 작동
   }
 
   async remove(id: number): Promise<void> {

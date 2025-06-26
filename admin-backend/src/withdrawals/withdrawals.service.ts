@@ -17,12 +17,29 @@ export class WithdrawalsService {
     private userRepository: Repository<User>,
   ) { }
 
-  async findAll(): Promise<Withdrawal[]> {
-    return this.withdrawalRepository.find({ relations: ['user'] });
+  async findAll(
+    sortField = 'id',
+    sortOrder: 'ASC' | 'DESC' = 'ASC'
+  ): Promise<Withdrawal[]> {
+    const qb = this.withdrawalRepository
+      .createQueryBuilder('deposit')
+      .leftJoinAndSelect('deposit.user', 'user');
+
+    // 정렬 필드 처리
+    if (sortField === 'user.userid') {
+      qb.orderBy('user.userid', sortOrder);
+    } else {
+      qb.orderBy(`deposit.${sortField}`, sortOrder);
+    }
+
+    return qb.getMany();
   }
 
   async findAllByUser(userId: number) {
-    return this.withdrawalRepository.find({ where: { userId } });
+    return this.withdrawalRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' }
+    });
   }
 
   async findOne(id: number): Promise<Withdrawal | null> {

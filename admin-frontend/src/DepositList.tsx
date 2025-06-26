@@ -67,10 +67,7 @@ const DepositList = () => {
     <List>
       {isSmall ? null : (
         <Datagrid rowClick={false}>
-          <FunctionField
-            label="아이디"
-            render={record => record?.user?.userid}
-          />
+          <TextField source="user.userid" label="회원" />
           <NumberField source="amount" label="금액" />
           <TextField source="accountHolder" label="입금자명" />
           <DateField source="createdAt" label="신청일" showTime />

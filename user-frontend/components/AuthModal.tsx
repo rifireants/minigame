@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 export default function AuthModal() {
   const handleProceed = () => {
-    window.location.href = "/game";
+    const modal = document.getElementById("authModal") as HTMLDialogElement | null;
+    modal?.close();
   };
 
   useEffect(() => {
