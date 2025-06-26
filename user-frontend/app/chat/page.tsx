@@ -14,7 +14,7 @@ export default function ChatPage() {
     const checkAuth = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        document.getElementById("signModal")?.showModal();
+        (document.getElementById("signModal") as HTMLDialogElement)?.showModal();
         setIsVerified(false);
         return;
       }
@@ -30,11 +30,11 @@ export default function ChatPage() {
         if (res.ok) {
           setIsVerified(true);
         } else {
-          document.getElementById("signModal")?.showModal();
+          (document.getElementById("signModal") as HTMLDialogElement)?.showModal();
           setIsVerified(false);
         }
       } catch {
-        document.getElementById("signModal")?.showModal();
+        (document.getElementById("signModal") as HTMLDialogElement)?.showModal();
         setIsVerified(false);
       }
     };

@@ -17,7 +17,7 @@ export default function QuickNav() {
   const protectedNavigate = async (path: string) => {
     const token = localStorage.getItem('token');
     if (!token) {
-      document.getElementById('signModal')?.showModal();
+      (document.getElementById("signModal") as HTMLDialogElement)?.showModal();
       return;
     }
 
@@ -32,10 +32,10 @@ export default function QuickNav() {
       if (res.ok) {
         router.push(path);
       } else {
-        document.getElementById('signModal')?.showModal();
+        (document.getElementById("signModal") as HTMLDialogElement)?.showModal();
       }
     } catch {
-      document.getElementById('signModal')?.showModal();
+      (document.getElementById("signModal") as HTMLDialogElement)?.showModal();
     }
   };
 
