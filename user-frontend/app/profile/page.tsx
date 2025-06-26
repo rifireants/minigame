@@ -36,13 +36,6 @@ export default function ProfilePage() {
     fetchData();
   }, []);
 
-
-  const confirmLogout = () => {
-    if (confirm('정말 로그아웃 하시겠습니까?')) {
-      window.location.href = '/logout';
-    }
-  };
-
   return (
     <main className="bg-white min-h-screen pb-20 max-w-md mx-auto">
       <ProfileHeader />
