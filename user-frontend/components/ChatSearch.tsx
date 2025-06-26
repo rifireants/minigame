@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { BsSearch } from 'react-icons/bs';
 
 const ChatSearch = () => {
-  const [activeFilter, setActiveFilter] = useState('online');
+  const [activeFilter, setActiveFilter] = useState('전체');
   const router = useRouter();
 
   return (
@@ -23,7 +23,7 @@ const ChatSearch = () => {
 
       {/* Filter Tags */}
       <div className="chat-filter flex flex-wrap gap-2">
-        {['all', 'online', 'new', 'nearby', 'verified', '20s', '30s'].map((filter) => (
+        {['전체', '서울', '경기', '경북', '경남', '전북', '전남', '강원', '제주'].map((filter) => (
           <span
             key={filter}
             className={`cursor-pointer px-4 py-2 rounded-full text-sm font-medium transition-all ${
@@ -31,7 +31,7 @@ const ChatSearch = () => {
             }`}
             data-filter={filter}
           >
-            {filter === 'all' ? '전체' : filter === 'online' ? '온라인' : filter === 'new' ? '신규' : filter === 'nearby' ? '근처' : filter === 'verified' ? '인증' : filter === '20s' ? '20대' : '30대'}
+            {filter}
           </span>
         ))}
       </div>
